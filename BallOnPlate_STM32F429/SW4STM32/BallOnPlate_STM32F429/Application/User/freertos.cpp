@@ -1,50 +1,50 @@
 /**
- ******************************************************************************
- * File Name          : freertos.c
- * Description        : Code for freertos applications
- ******************************************************************************
- * This notice applies to any and all portions of this file
- * that are not between comment pairs USER CODE BEGIN and
- * USER CODE END. Other portions of this file, whether
- * inserted by the user or by software development tools
- * are owned by their respective copyright owners.
- *
- * Copyright (c) 2017 STMicroelectronics International N.V.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted, provided that the following conditions are met:
- *
- * 1. Redistribution of source code must retain the above copyright notice,
- *    this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- * 3. Neither the name of STMicroelectronics nor the names of other
- *    contributors to this software may be used to endorse or promote products
- *    derived from this software without specific written permission.
- * 4. This software, including modifications and/or derivative works of this
- *    software, must execute solely and exclusively on microcontroller or
- *    microprocessor devices manufactured by or for STMicroelectronics.
- * 5. Redistribution and use of this software other than as permitted under
- *    this license is void and will automatically terminate your rights under
- *    this license.
- *
- * THIS SOFTWARE IS PROVIDED BY STMICROELECTRONICS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS, IMPLIED OR STATUTORY WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
- * PARTICULAR PURPOSE AND NON-INFRINGEMENT OF THIRD PARTY INTELLECTUAL PROPERTY
- * RIGHTS ARE DISCLAIMED TO THE FULLEST EXTENT PERMITTED BY LAW. IN NO EVENT
- * SHALL STMICROELECTRONICS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
- * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
- * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
- * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- ******************************************************************************
- */
+  ******************************************************************************
+  * File Name          : freertos.c
+  * Description        : Code for freertos applications
+  ******************************************************************************
+  * This notice applies to any and all portions of this file
+  * that are not between comment pairs USER CODE BEGIN and
+  * USER CODE END. Other portions of this file, whether
+  * inserted by the user or by software development tools
+  * are owned by their respective copyright owners.
+  *
+  * Copyright (c) 2017 STMicroelectronics International N.V.
+  * All rights reserved.
+  *
+  * Redistribution and use in source and binary forms, with or without
+  * modification, are permitted, provided that the following conditions are met:
+  *
+  * 1. Redistribution of source code must retain the above copyright notice,
+  *    this list of conditions and the following disclaimer.
+  * 2. Redistributions in binary form must reproduce the above copyright notice,
+  *    this list of conditions and the following disclaimer in the documentation
+  *    and/or other materials provided with the distribution.
+  * 3. Neither the name of STMicroelectronics nor the names of other
+  *    contributors to this software may be used to endorse or promote products
+  *    derived from this software without specific written permission.
+  * 4. This software, including modifications and/or derivative works of this
+  *    software, must execute solely and exclusively on microcontroller or
+  *    microprocessor devices manufactured by or for STMicroelectronics.
+  * 5. Redistribution and use of this software other than as permitted under
+  *    this license is void and will automatically terminate your rights under
+  *    this license.
+  *
+  * THIS SOFTWARE IS PROVIDED BY STMICROELECTRONICS AND CONTRIBUTORS "AS IS"
+  * AND ANY EXPRESS, IMPLIED OR STATUTORY WARRANTIES, INCLUDING, BUT NOT
+  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+  * PARTICULAR PURPOSE AND NON-INFRINGEMENT OF THIRD PARTY INTELLECTUAL PROPERTY
+  * RIGHTS ARE DISCLAIMED TO THE FULLEST EXTENT PERMITTED BY LAW. IN NO EVENT
+  * SHALL STMICROELECTRONICS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+  * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+  * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  *
+  ******************************************************************************
+  */
 
 /* Includes ------------------------------------------------------------------*/
 #include "FreeRTOS.h"
@@ -162,10 +162,10 @@ double errorY, sumErrorY, dErrorY;
 
 /* Function prototypes -------------------------------------------------------*/
 void StartDefaultTask(void const * argument);
-void StartPIDTask(void const * argument);
-void StartTouchPanelTask(void const * argument);
-void StartRxTask(void const * argument);
-void StartTxTask(void const * argument);
+extern void StartPIDTask(void const * argument);
+extern void StartTouchPanelTask(void const * argument);
+extern void StartRxTask(void const * argument);
+extern void StartTxTask(void const * argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -180,67 +180,67 @@ void StartProcedure(void);
 /* Init FreeRTOS */
 
 void MX_FREERTOS_Init(void) {
-	/* USER CODE BEGIN Init */
+  /* USER CODE BEGIN Init */
 
-	/* USER CODE END Init */
+  /* USER CODE END Init */
 
-	/* USER CODE BEGIN RTOS_MUTEX */
+  /* USER CODE BEGIN RTOS_MUTEX */
 	/* add mutexes, ... */
-	/* USER CODE END RTOS_MUTEX */
+  /* USER CODE END RTOS_MUTEX */
 
-	/* Create the semaphores(s) */
-	/* definition and creation of txSemaphore */
-	osSemaphoreDef(txSemaphore);
-	txSemaphoreHandle = osSemaphoreCreate(osSemaphore(txSemaphore), 15);
+  /* Create the semaphores(s) */
+  /* definition and creation of txSemaphore */
+  osSemaphoreDef(txSemaphore);
+  txSemaphoreHandle = osSemaphoreCreate(osSemaphore(txSemaphore), 15);
 
-	/* definition and creation of rxSemaphore */
-	osSemaphoreDef(rxSemaphore);
-	rxSemaphoreHandle = osSemaphoreCreate(osSemaphore(rxSemaphore), 15);
+  /* definition and creation of rxSemaphore */
+  osSemaphoreDef(rxSemaphore);
+  rxSemaphoreHandle = osSemaphoreCreate(osSemaphore(rxSemaphore), 15);
 
-	/* USER CODE BEGIN RTOS_SEMAPHORES */
+  /* USER CODE BEGIN RTOS_SEMAPHORES */
 	/* add semaphores, ... */
-	/* USER CODE END RTOS_SEMAPHORES */
+  /* USER CODE END RTOS_SEMAPHORES */
 
-	/* USER CODE BEGIN RTOS_TIMERS */
+  /* USER CODE BEGIN RTOS_TIMERS */
 	/* start timers, add new ones, ... */
-	/* USER CODE END RTOS_TIMERS */
+  /* USER CODE END RTOS_TIMERS */
 
-	/* Create the thread(s) */
-	/* definition and creation of defaultTask */
-	osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 512);
-	defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
+  /* Create the thread(s) */
+  /* definition and creation of defaultTask */
+  osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 512);
+  defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 
-	/* definition and creation of pidTask */
-	osThreadDef(pidTask, StartPIDTask, osPriorityRealtime, 0, 512);
-	pidTaskHandle = osThreadCreate(osThread(pidTask), NULL);
+  /* definition and creation of pidTask */
+  osThreadDef(pidTask, StartPIDTask, osPriorityHigh, 0, 512);
+  pidTaskHandle = osThreadCreate(osThread(pidTask), NULL);
 
-	/* definition and creation of touchPanelTask */
-	osThreadDef(touchPanelTask, StartTouchPanelTask, osPriorityNormal, 0, 256);
-	touchPanelTaskHandle = osThreadCreate(osThread(touchPanelTask), NULL);
+  /* definition and creation of touchPanelTask */
+  osThreadDef(touchPanelTask, StartTouchPanelTask, osPriorityAboveNormal, 0, 256);
+  touchPanelTaskHandle = osThreadCreate(osThread(touchPanelTask), NULL);
 
-	/* definition and creation of rxTask */
-	osThreadDef(rxTask, StartRxTask, osPriorityBelowNormal, 0, 128);
-	rxTaskHandle = osThreadCreate(osThread(rxTask), NULL);
+  /* definition and creation of rxTask */
+  osThreadDef(rxTask, StartRxTask, osPriorityBelowNormal, 0, 128);
+  rxTaskHandle = osThreadCreate(osThread(rxTask), NULL);
 
-	/* definition and creation of txTask */
-	osThreadDef(txTask, StartTxTask, osPriorityBelowNormal, 0, 128);
-	txTaskHandle = osThreadCreate(osThread(txTask), NULL);
+  /* definition and creation of txTask */
+  osThreadDef(txTask, StartTxTask, osPriorityBelowNormal, 0, 128);
+  txTaskHandle = osThreadCreate(osThread(txTask), NULL);
 
-	/* USER CODE BEGIN RTOS_THREADS */
+  /* USER CODE BEGIN RTOS_THREADS */
 	/* add threads, ... */
 
-	/* USER CODE END RTOS_THREADS */
+  /* USER CODE END RTOS_THREADS */
 
-	/* USER CODE BEGIN RTOS_QUEUES */
+  /* USER CODE BEGIN RTOS_QUEUES */
 	/* add queues, ... */
-	/* USER CODE END RTOS_QUEUES */
+  /* USER CODE END RTOS_QUEUES */
 }
 
 /* StartDefaultTask function */
 void StartDefaultTask(void const * argument)
 {
 
-	/* USER CODE BEGIN StartDefaultTask */
+  /* USER CODE BEGIN StartDefaultTask */
 	Bluetooth.begin();
 
 	StartProcedure();
@@ -312,83 +312,12 @@ void StartDefaultTask(void const * argument)
 
 		osDelay(10);
 	}
-	/* USER CODE END StartDefaultTask */
-}
-
-/* StartPIDTask function */
-void StartPIDTask(void const * argument)
-{
-	/* USER CODE BEGIN StartPIDTask */
-	TickType_t xLastWakeTime;
-	const TickType_t xFrequency = 20;
-
-	xLastWakeTime = xTaskGetTickCount();
-	while(true){
-		vTaskDelayUntil( &xLastWakeTime, xFrequency );
-		XPid.Process();
-		YPid.Process();
-	}
-	/* USER CODE END StartPIDTask */
-}
-
-/* StartTouchPanelTask function */
-void StartTouchPanelTask(void const * argument)
-{
-	/* USER CODE BEGIN StartTouchPanelTask */
-	TickType_t xLastWakeTime;
-	const TickType_t xFrequency = 5;
-
-	xLastWakeTime = xTaskGetTickCount();
-	while(true){
-		vTaskDelayUntil( &xLastWakeTime, xFrequency );
-		Panel.Process();
-	}
-	/* USER CODE END StartTouchPanelTask */
-}
-
-/* StartRxTask function */
-void StartRxTask(void const * argument)
-{
-	/* USER CODE BEGIN StartRxTask */
-	osSemaphoreWait(rxSemaphoreHandle,osWaitForever);
-	/* Infinite loop */
-	for(;;)
-	{
-		osSemaphoreWait(rxSemaphoreHandle,osWaitForever);
-		Bluetooth.processRxISR();
-	}
-	/* USER CODE END StartRxTask */
-}
-
-/* StartTxTask function */
-void StartTxTask(void const * argument)
-{
-	/* USER CODE BEGIN StartTxTask */
-	osSemaphoreWait(txSemaphoreHandle,osWaitForever);
-	/* Infinite loop */
-	for(;;)
-	{
-		osSemaphoreWait(txSemaphoreHandle,osWaitForever);
-		Bluetooth.processTxISR();
-	}
-	/* USER CODE END StartTxTask */
+  /* USER CODE END StartDefaultTask */
 }
 
 /* USER CODE BEGIN Application */
 
-void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
 
-	if(huart->Instance == Bluetooth.getUARTInstance())
-		osSemaphoreRelease(txSemaphoreHandle);
-
-}
-
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
-
-	if(huart->Instance == Bluetooth.getUARTInstance())
-		osSemaphoreRelease(rxSemaphoreHandle);
-
-}
 
 void StartProcedure(void){
 	Controller.Start();
