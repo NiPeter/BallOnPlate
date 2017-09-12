@@ -55,6 +55,7 @@ extern "C" {
 #include "cmsis_os.h"
 #include "adc.h"
 #include "tim.h"
+#include "usart.h"
 #include "gpio.h"
 
 #ifdef __cplusplus
@@ -117,6 +118,7 @@ int main(void)
   MX_TIM9_Init();
   MX_ADC1_Init();
   MX_ADC2_Init();
+  MX_USART1_UART_Init();
 
   /* USER CODE BEGIN 2 */
 
