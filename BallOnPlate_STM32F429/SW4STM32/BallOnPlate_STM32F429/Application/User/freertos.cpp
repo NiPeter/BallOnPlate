@@ -62,17 +62,23 @@ extern "C" {
 #include "tim.h"
 #include "gpio.h"
 #include "adc.h"
+#include "usart.h"
 
 #ifdef __cplusplus
 }
 #endif
 
 #include "PlatformController/PlatformController.hpp"
+#include "BallControl/DOF.h"
+
 #include "TouchPanel/TouchPanel_4W/TouchPanel_4W.hpp"
-#include "PID/ParallelPID/ParallelPID.hpp"
+#include "BallControl/Axis.h"
+
 #include "PID/DiscreteTimePID/DiscreteTimePID.h"
-#include "Ball_Control/DOF.h"
-#include "Ball_Control/Axis.h"
+
+#include "Communicator/Serial/HC05/HC05.hpp"
+#include "Communicator/Communicator.hpp"
+
 
 /* USER CODE END Includes */
 
@@ -80,8 +86,15 @@ extern "C" {
 osThreadId defaultTaskHandle;
 osThreadId pidTaskHandle;
 osThreadId touchPanelTaskHandle;
+osThreadId rxTaskHandle;
+osThreadId txTaskHandle;
+osSemaphoreId txSemaphoreHandle;
+osSemaphoreId rxSemaphoreHandle;
 
 /* USER CODE BEGIN Variables */
+
+HC05	Bluetooth(&huart1);
+Communicator Comm(&Bluetooth);
 
 Servo Servos[6] = {
 
@@ -101,17 +114,18 @@ Steward_Struct Steward = {
 		{ 0.05,		1.7453	}, // Platform_Struct {r , alpha}
 		{ 0.01653,	0.095	}  // Drive_Struct {a , s}
 };
-PlatformController Controller(Servos,&Steward);
-RollDOF Roll(Controller);
-PitchDOF Pitch(Controller);
+PlatformController 	Controller(Servos,&Steward);
+RollDOF 			Roll(Controller);
+PitchDOF 			Pitch(Controller);
 
-AnalogPin 	XAnalog(&hadc1,X_ADC_GPIO_Port,X_ADC_Pin);
-AnalogPin 	YAnalog(&hadc2,Y_ADC_GPIO_Port,Y_ADC_Pin);
-Pin			XGnd(X_GND_GPIO_Port,X_GND_Pin);
-Pin			YGnd(Y_GND_GPIO_Port,Y_GND_Pin);
-TouchPanel4W Panel(XAnalog,XGnd,YAnalog,YGnd);
-XAxis XPos(Panel);
-YAxis YPos(Panel);
+AnalogPin 			XAnalog(&hadc1,X_ADC_GPIO_Port,X_ADC_Pin);
+AnalogPin 			YAnalog(&hadc2,Y_ADC_GPIO_Port,Y_ADC_Pin);
+Pin					XGnd(X_GND_GPIO_Port,X_GND_Pin);
+Pin					YGnd(Y_GND_GPIO_Port,Y_GND_Pin);
+TouchPanel4W 		Panel(XAnalog,XGnd,YAnalog,YGnd);
+
+XAxis 				XPos(Panel);
+YAxis 				YPos(Panel);
 
 
 double kpX = 0.05;
@@ -150,6 +164,8 @@ double errorY, sumErrorY, dErrorY;
 void StartDefaultTask(void const * argument);
 void StartPIDTask(void const * argument);
 void StartTouchPanelTask(void const * argument);
+void StartRxTask(void const * argument);
+void StartTxTask(void const * argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -172,6 +188,15 @@ void MX_FREERTOS_Init(void) {
 	/* add mutexes, ... */
   /* USER CODE END RTOS_MUTEX */
 
+  /* Create the semaphores(s) */
+  /* definition and creation of txSemaphore */
+  osSemaphoreDef(txSemaphore);
+  txSemaphoreHandle = osSemaphoreCreate(osSemaphore(txSemaphore), 15);
+
+  /* definition and creation of rxSemaphore */
+  osSemaphoreDef(rxSemaphore);
+  rxSemaphoreHandle = osSemaphoreCreate(osSemaphore(rxSemaphore), 15);
+
   /* USER CODE BEGIN RTOS_SEMAPHORES */
 	/* add semaphores, ... */
   /* USER CODE END RTOS_SEMAPHORES */
@@ -193,6 +218,14 @@ void MX_FREERTOS_Init(void) {
   osThreadDef(touchPanelTask, StartTouchPanelTask, osPriorityNormal, 0, 256);
   touchPanelTaskHandle = osThreadCreate(osThread(touchPanelTask), NULL);
 
+  /* definition and creation of rxTask */
+  osThreadDef(rxTask, StartRxTask, osPriorityBelowNormal, 0, 128);
+  rxTaskHandle = osThreadCreate(osThread(rxTask), NULL);
+
+  /* definition and creation of txTask */
+  osThreadDef(txTask, StartTxTask, osPriorityBelowNormal, 0, 128);
+  txTaskHandle = osThreadCreate(osThread(txTask), NULL);
+
   /* USER CODE BEGIN RTOS_THREADS */
 	/* add threads, ... */
 
@@ -208,16 +241,37 @@ void StartDefaultTask(void const * argument)
 {
 
   /* USER CODE BEGIN StartDefaultTask */
+	Bluetooth.begin();
+
 	StartProcedure();
+	bool stopbuff = true;
 
 	/* Infinite loop */
 	for(;;)
 	{
 		prev_td = td;
-
 		td = Panel.IsTouched();
 
-		if( (prev_td == true) && (td == false) ){
+		bool cmdFlag = false;
+		Command cmd = Comm.receiveCmd(&cmdFlag);
+
+
+
+		if(cmdFlag){
+			switch(cmd.getType()){
+			case Stop:
+				stopbuff = false;
+				break;
+			case Start:
+				stopbuff = true;
+				break;
+			default:
+				break;
+			}
+		}
+		td = td && stopbuff;
+
+		if( ((prev_td == true) && (td == false))  ){
 			td_inc++;
 
 			XPid.Reset();
@@ -255,6 +309,7 @@ void StartDefaultTask(void const * argument)
 		errorY = YPid.GetError();
 
 
+
 		osDelay(10);
 	}
   /* USER CODE END StartDefaultTask */
@@ -286,7 +341,50 @@ void StartTouchPanelTask(void const * argument)
   /* USER CODE END StartTouchPanelTask */
 }
 
+/* StartRxTask function */
+void StartRxTask(void const * argument)
+{
+  /* USER CODE BEGIN StartRxTask */
+	osSemaphoreWait(rxSemaphoreHandle,osWaitForever);
+  /* Infinite loop */
+  for(;;)
+  {
+	osSemaphoreWait(rxSemaphoreHandle,osWaitForever);
+	Bluetooth.processRxISR();
+  }
+  /* USER CODE END StartRxTask */
+}
+
+/* StartTxTask function */
+void StartTxTask(void const * argument)
+{
+  /* USER CODE BEGIN StartTxTask */
+	osSemaphoreWait(txSemaphoreHandle,osWaitForever);
+  /* Infinite loop */
+  for(;;)
+  {
+	  osSemaphoreWait(txSemaphoreHandle,osWaitForever);
+	  Bluetooth.processTxISR();
+  }
+  /* USER CODE END StartTxTask */
+}
+
 /* USER CODE BEGIN Application */
+
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
+
+	if(huart->Instance == Bluetooth.getUARTInstance())
+		osSemaphoreRelease(txSemaphoreHandle);
+
+}
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
+
+	if(huart->Instance == Bluetooth.getUARTInstance())
+		osSemaphoreRelease(rxSemaphoreHandle);
+
+}
+
 
 void StartProcedure(void){
 	Controller.Start();

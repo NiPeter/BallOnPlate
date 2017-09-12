@@ -11,6 +11,8 @@
 typedef enum {
 	Fail = 0,
 	Ok,
+	Stop,
+	Start,
 	Set,
 	Get,
 	SetX = 30,
