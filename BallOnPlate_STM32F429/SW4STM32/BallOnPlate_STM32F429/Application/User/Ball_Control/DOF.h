@@ -8,12 +8,15 @@
 #ifndef DOF_H_
 #define DOF_H_
 
+
 #include "../PID/PID.hpp"
 #include "../PlatformController/PlatformController.hpp"
-#include "../TouchPanel/TouchPanel_4W/TouchPanel_4W.hpp"
+
+
+/***	INTERFACES TO 		PLATFORM CONTROLLER	***/
 
 /**
- *
+ * @brief Virtual interface class to access Platform Controller's DOFs
  */
 class DOF: public IControlable {
 protected:
@@ -30,7 +33,7 @@ public:
 
 
 /**
- *
+ * @brief Interface class to access Platform Controller's roll DOF
  */
 class RollDOF : public DOF{
 public:
@@ -44,7 +47,7 @@ public:
 
 
 /**
- *
+ * @brief Interface class to access Platform Controller's pitch DOF
  */
 class PitchDOF : public DOF{
 public:
@@ -56,31 +59,5 @@ public:
 /********************************************************/
 
 
-
-class Plate : public IPerceptible{
-protected:
-	TouchPanel4W &Panel;
-
-public:
-	Plate( TouchPanel4W &panel) : Panel(panel) {};
-	virtual ~Plate(){};
-	virtual double Get() = 0;
-};
-
-class XPlate : public Plate{
-public:
-
-	XPlate( TouchPanel4W &panel) : Plate(panel) {};
-	virtual ~XPlate(){};
-	double Get() { return (double)Panel.GetX(); };
-};
-
-class YPlate : public Plate{
-public:
-
-	YPlate( TouchPanel4W &panel) : Plate(panel) {};
-	virtual ~YPlate(){};
-	double Get() { return (double)Panel.GetY(); };
-};
 
 #endif /* DOF_H_ */

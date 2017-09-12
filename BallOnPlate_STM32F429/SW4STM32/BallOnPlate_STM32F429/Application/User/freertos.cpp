@@ -72,12 +72,14 @@ extern "C" {
 #include "PID/ParallelPID/ParallelPID.hpp"
 #include "PID/DiscreteTimePID/DiscreteTimePID.h"
 #include "Ball_Control/DOF.h"
+#include "Ball_Control/Axis.h"
 
 /* USER CODE END Includes */
 
 /* Variables -----------------------------------------------------------------*/
 osThreadId defaultTaskHandle;
 osThreadId pidTaskHandle;
+osThreadId touchPanelTaskHandle;
 
 /* USER CODE BEGIN Variables */
 
@@ -108,8 +110,8 @@ AnalogPin 	YAnalog(&hadc2,Y_ADC_GPIO_Port,Y_ADC_Pin);
 Pin			XGnd(X_GND_GPIO_Port,X_GND_Pin);
 Pin			YGnd(Y_GND_GPIO_Port,Y_GND_Pin);
 TouchPanel4W Panel(XAnalog,XGnd,YAnalog,YGnd);
-XPlate XPos(Panel);
-YPlate YPos(Panel);
+XAxis XPos(Panel);
+YAxis YPos(Panel);
 
 
 double kpX = 0.05;
@@ -147,12 +149,14 @@ double errorY, sumErrorY, dErrorY;
 /* Function prototypes -------------------------------------------------------*/
 void StartDefaultTask(void const * argument);
 void StartPIDTask(void const * argument);
+void StartTouchPanelTask(void const * argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
 /* USER CODE BEGIN FunctionPrototypes */
+
 void StartProcedure(void);
-void TouchPanelTask( void const * argument);
+
 /* USER CODE END FunctionPrototypes */
 
 /* Hook prototypes */
@@ -185,10 +189,12 @@ void MX_FREERTOS_Init(void) {
   osThreadDef(pidTask, StartPIDTask, osPriorityRealtime, 0, 512);
   pidTaskHandle = osThreadCreate(osThread(pidTask), NULL);
 
+  /* definition and creation of touchPanelTask */
+  osThreadDef(touchPanelTask, StartTouchPanelTask, osPriorityNormal, 0, 256);
+  touchPanelTaskHandle = osThreadCreate(osThread(touchPanelTask), NULL);
+
   /* USER CODE BEGIN RTOS_THREADS */
 	/* add threads, ... */
-	osThreadDef(touchPanelTask, TouchPanelTask, osPriorityNormal, 0, 512);
-	osThreadCreate(osThread(touchPanelTask), NULL);
 
   /* USER CODE END RTOS_THREADS */
 
@@ -267,26 +273,35 @@ void StartPIDTask(void const * argument)
   /* USER CODE END StartPIDTask */
 }
 
-/* USER CODE BEGIN Application */
-
-void TouchPanelTask( void const * argument){
-
-	while(true){
-		Panel.Process();
-	}
+/* StartTouchPanelTask function */
+void StartTouchPanelTask(void const * argument)
+{
+  /* USER CODE BEGIN StartTouchPanelTask */
+  /* Infinite loop */
+  for(;;)
+  {
+	  Panel.Process();
+	  osDelay(1);
+  }
+  /* USER CODE END StartTouchPanelTask */
 }
+
+/* USER CODE BEGIN Application */
 
 void StartProcedure(void){
 	Controller.Start();
 	double q[6] = {0,0,0,0,0,0};
 	Controller.Move(q);
 	osDelay(100);
+
 	q[2] = -0.01;
 	Controller.Move(q);
 	osDelay(300);
+
 	q[2] = 0;
 	Controller.Move(q);
 	osDelay(100);
+
 	q[2] = -0.002;
 	Controller.Move(q);
 	osDelay(100);
