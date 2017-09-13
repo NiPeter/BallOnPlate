@@ -16,6 +16,7 @@
  *
  */
 class DiscreteTimePID : public PID{
+
 public:
 	DiscreteTimePID(double kp, double ki, double kd, double ts,double n,
 			IPerceptible* sensor, IControlable* actuator);
