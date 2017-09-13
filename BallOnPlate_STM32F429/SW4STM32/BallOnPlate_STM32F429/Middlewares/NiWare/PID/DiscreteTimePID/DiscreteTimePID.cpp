@@ -12,6 +12,7 @@ DiscreteTimePID::DiscreteTimePID(double kp, double ki, double kd, double ts,doub
 		IPerceptible* sensor, IControlable* actuator) {
 	Tune(kp,ki,kd,n);
 	SetLimits(100,-100);
+	SetDeadband(0);
 	Sensor = sensor;
 	Actuator = actuator;
 
@@ -30,6 +31,7 @@ void DiscreteTimePID::Process() {
 	double y = Sensor->Get();  // read plant output
 
 	e0 = Setpoint - y;
+	if( fabs(e0) < Deadband ) return;	// Deadband
 
 	ControlVariable = -ku1*u1 - ku2*u2 + ke0*e0 + ke1*e1 + ke2*e2;
 

@@ -9,6 +9,7 @@
 #define DISCRETETIMEPID_H_
 
 #include "../PID.hpp"
+#include "math.h"
 
 // http://controlsystemslab.com/discrete-time-pid-controller-implementation/
 
@@ -28,6 +29,11 @@ public:
 	void Reset();
 
 	void Tune(double kp, double ki, double kd, double n);
+
+	void SetDeadband( double deadband){
+		if(deadband<0) deadband = -deadband;
+		Deadband = deadband;
+	}
 
 	void SetLimits( double max, double min ){
 		if( min<max ){
@@ -60,6 +66,7 @@ private:
 	double e2, e1, e0, u2, u1;  // variables used in PID computation
 
 	double Max, Min;
+	double Deadband;
 
 	bool Working;	// True if working
 
