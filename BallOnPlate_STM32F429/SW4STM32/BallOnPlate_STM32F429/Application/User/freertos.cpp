@@ -52,33 +52,7 @@
 #include "cmsis_os.h"
 
 /* USER CODE BEGIN Includes */
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#include "main.h"
-#include "stm32f4xx_hal.h"
-#include "cmsis_os.h"
-#include "tim.h"
-#include "gpio.h"
-#include "adc.h"
-#include "usart.h"
-
-#ifdef __cplusplus
-}
-#endif
-
-#include "PlatformController/PlatformController.hpp"
-#include "BallControl/DOF.h"
-
-#include "TouchPanel/TouchPanel_4W/TouchPanel_4W.hpp"
-#include "BallControl/Axis.h"
-
-#include "PID/DiscreteTimePID/DiscreteTimePID.h"
-
-#include "Communicator/Serial/HC05/HC05.hpp"
-#include "Communicator/Communicator.hpp"
-
+#include "Objects/Objects.hpp"
 
 /* USER CODE END Includes */
 
@@ -92,68 +66,13 @@ osSemaphoreId txSemaphoreHandle;
 osSemaphoreId rxSemaphoreHandle;
 
 /* USER CODE BEGIN Variables */
-
-HC05	Bluetooth(&huart1);
-Communicator Comm(&Bluetooth);
-
-Servo Servos[6] = {
-
-		Servo(&htim4,TIM_CHANNEL_2),	// PB7 - Niebieski
-
-		Servo(&htim3,TIM_CHANNEL_1),	// PB4 - Pomarañczowy
-		Servo(&htim2,TIM_CHANNEL_2),	// PB3 - Fioletowy
-
-		Servo(&htim9,TIM_CHANNEL_2), 	// PE6 - Br¹zowy
-		Servo(&htim9,TIM_CHANNEL_1),	// PE5 - ¯ó³ty
-
-		Servo(&htim3,TIM_CHANNEL_3),	// PC8 - Bia³y
-
-};
-Steward_Struct Steward = {
-		{ 0.075, 	0.5236 	}, // Base_Struct {r , alpha}
-		{ 0.05,		1.7453	}, // Platform_Struct {r , alpha}
-		{ 0.01653,	0.095	}  // Drive_Struct {a , s}
-};
-PlatformController 	Controller(Servos,&Steward);
-RollDOF 			Roll(Controller);
-PitchDOF 			Pitch(Controller);
-
-AnalogPin 			XAnalog(&hadc1,X_ADC_GPIO_Port,X_ADC_Pin);
-AnalogPin 			YAnalog(&hadc2,Y_ADC_GPIO_Port,Y_ADC_Pin);
-Pin					XGnd(X_GND_GPIO_Port,X_GND_Pin);
-Pin					YGnd(Y_GND_GPIO_Port,Y_GND_Pin);
-TouchPanel4W 		Panel(XAnalog,XGnd,YAnalog,YGnd);
-
-XAxis 				XPos(Panel);
-YAxis 				YPos(Panel);
-
-
-double kpX = 0.05;
-double kiX = 0.08;
-double kdX = 0.04;
-double nX = 8;
-
-double kpY = 0.05;
-double kiY = 0.08;
-double kdY = 0.04;
-double nY = 8;
-
-double dt = 0.02;
-
-
-double setpointX = 0;
-double setpointY = 0;
-
-DiscreteTimePID XPid(kpX,kiX,kdX,dt,nX,&XPos,&Pitch);
-DiscreteTimePID YPid(kpY,kiY,kdY,dt,nY,&YPos,&Roll);
-
-
-
 float X,Y;
 int td,prev_td,td_inc;
 
-
 float x,y,z,roll,pitch,yaw;
+
+double setpointX = 0;
+double setpointY = 0;
 
 float outX,outY;
 double errorX, sumErrorX, dErrorX;
