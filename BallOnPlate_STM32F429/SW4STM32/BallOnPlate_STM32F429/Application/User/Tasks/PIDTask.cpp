@@ -27,8 +27,8 @@ void StartPIDTask(void const * argument){
 	TickType_t xFrequency = (( XPid.GetTs() + YPid.GetTs() ) * configTICK_RATE_HZ) /2.0;
 
 
-	XPid.SetDeadband(1.5);
-	YPid.SetDeadband(1.5);
+	XPid.SetDeadband(0.3);
+	YPid.SetDeadband(0.3);
 
 	xLastWakeTime = xTaskGetTickCount();
 	while(true){

@@ -31,7 +31,12 @@ void DiscreteTimePID::Process() {
 	double y = Sensor->Get();  // read plant output
 
 	e0 = Setpoint - y;
-	if( fabs(e0) < Deadband ) return;	// Deadband
+
+	// Deadband
+	if( fabs(e0) < Deadband ){
+		Actuator->Set(0);   // sent to output
+		return;
+	}
 
 	ControlVariable = -ku1*u1 - ku2*u2 + ke0*e0 + ke1*e1 + ke2*e2;
 
