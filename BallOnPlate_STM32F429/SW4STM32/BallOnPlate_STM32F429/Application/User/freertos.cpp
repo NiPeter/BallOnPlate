@@ -69,12 +69,14 @@ osSemaphoreId rxSemaphoreHandle;
 float X,Y;
 int td,prev_td,td_inc;
 
+float x,y,z,roll,pitch,yaw;
+
 double setpointX = 0;
 double setpointY = 0;
 
 float outX,outY;
-double errorX;
-double errorY;
+double errorX, sumErrorX, dErrorX;
+double errorY, sumErrorY, dErrorY;
 /* USER CODE END Variables */
 
 /* Function prototypes -------------------------------------------------------*/

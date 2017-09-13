@@ -11,9 +11,8 @@
 #include "Command/Command.hpp"
 #include "Serial/Serial.hpp"
 
-#include "stdlib.h"
 
-char * ftostr(float num, char * str);
+#include "stdlib.h"
 
 class Communicator
 {
