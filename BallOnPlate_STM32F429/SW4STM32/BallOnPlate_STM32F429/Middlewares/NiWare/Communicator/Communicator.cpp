@@ -15,8 +15,6 @@
 
 /***	static functions	***/
 
-static char * ftostr(float num, char * str);
-
 static float floatFrom2Ints(int intPart, int fracPart, unsigned int nZeros = 0);
 static void intsFromFloat(float floatNumber, int *intPart, unsigned int *fracPartNominator, unsigned int *fracPartDenominator);
 static void strFromFloat(float param, char * result);
@@ -66,7 +64,7 @@ Command Communicator::receiveCmd(bool *cmdReceived)
 
 	while( index<CP_MSG_SIZE ){
 
-		if( SerialPort->isAvailable() == false ) break;
+		if( SerialPort->isAvailable() != true ) break;
 
 		c = SerialPort->readChar();
 
@@ -183,7 +181,7 @@ float Communicator::paramFromMsg(const char* msg){
 
 	if (*token != '=') return 0; // Brak "=" w wiadomoœci
 
-	if (*(++token) == 0) return 0; // Jest "=" ale nic za nim
+	if (*(++token) == '\0') return 0; // Jest "=" ale nic za nim
 
 	int param_int = atoi(token); // pobierz wartoœæ ca³kowit¹ parametru
 
@@ -215,7 +213,7 @@ float Communicator::paramFromMsg(const char* msg){
 /********************************************************/
 /***	Static Functions
  *********************************************************/
-static char * ftostr(float num, char * str){
+char * ftostr(float num, char * str){
 
 	const char *tmpSign = (num < 0) ? "-" : "";
 	float tmpVal = (num < 0) ? -num : num;
