@@ -10,8 +10,8 @@
 #include "cmsis_os.h"
 
 
-#include "../Communicator/Serial/HC05/HC05.hpp"
-#include "../Communicator/Communicator.hpp"
+#include "Communicator/Serial/HC05/HC05.hpp"
+#include "Communicator/Communicator.hpp"
 
 
 

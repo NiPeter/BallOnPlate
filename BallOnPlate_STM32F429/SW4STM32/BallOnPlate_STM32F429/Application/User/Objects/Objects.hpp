@@ -27,16 +27,16 @@ extern "C" {
 #endif
 
 
-#include "../PlatformController/PlatformController.hpp"
-#include "../BallControl/DOF.h"
+#include "PlatformController/PlatformController.hpp"
+#include "BallControl/DOF.h"
 
-#include "../TouchPanel/TouchPanel_4W/TouchPanel_4W.hpp"
-#include "../BallControl/Axis.h"
+#include "TouchPanel/TouchPanel_4W/TouchPanel_4W.hpp"
+#include "BallControl/Axis.h"
 
-#include "../PID/DiscreteTimePID/DiscreteTimePID.h"
+#include "PID/DiscreteTimePID/DiscreteTimePID.h"
 
-#include "../Communicator/Serial/HC05/HC05.hpp"
-#include "../Communicator/Communicator.hpp"
+#include "Communicator/Serial/HC05/HC05.hpp"
+#include "Communicator/Communicator.hpp"
 
 /********************************************************/
 

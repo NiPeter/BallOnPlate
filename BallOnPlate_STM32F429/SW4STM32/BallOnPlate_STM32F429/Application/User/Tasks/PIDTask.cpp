@@ -9,7 +9,7 @@
 #include "task.h"
 #include "cmsis_os.h"
 
-#include "../PID/DiscreteTimePID/DiscreteTimePID.h"
+#include "PID/DiscreteTimePID/DiscreteTimePID.h"
 
 
 

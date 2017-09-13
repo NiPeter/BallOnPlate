@@ -9,7 +9,7 @@
 #include "task.h"
 #include "cmsis_os.h"
 
-#include "../TouchPanel/TouchPanel_4W/TouchPanel_4W.hpp"
+#include "TouchPanel/TouchPanel_4W/TouchPanel_4W.hpp"
 
 
 extern TouchPanel4W		Panel;
