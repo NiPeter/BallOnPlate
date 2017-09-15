@@ -56,6 +56,10 @@
 
 /* Private define ------------------------------------------------------------*/
 
+#define PE2_Pin GPIO_PIN_2
+#define PE2_GPIO_Port GPIOE
+#define PE4_Pin GPIO_PIN_4
+#define PE4_GPIO_Port GPIOE
 #define PC14_OSC32_IN_Pin GPIO_PIN_14
 #define PC14_OSC32_IN_GPIO_Port GPIOC
 #define PC15_OSC32_OUT_Pin GPIO_PIN_15
@@ -72,6 +76,8 @@
 #define A4_GPIO_Port GPIOF
 #define A5_Pin GPIO_PIN_5
 #define A5_GPIO_Port GPIOF
+#define PF6_Pin GPIO_PIN_6
+#define PF6_GPIO_Port GPIOF
 #define SPI5_SCK_Pin GPIO_PIN_7
 #define SPI5_SCK_GPIO_Port GPIOF
 #define SPI5_MISO_Pin GPIO_PIN_8
@@ -90,8 +96,8 @@
 #define NCS_MEMS_SPI_GPIO_Port GPIOC
 #define CSX_Pin GPIO_PIN_2
 #define CSX_GPIO_Port GPIOC
-#define Y_ADC_Pin GPIO_PIN_3
-#define Y_ADC_GPIO_Port GPIOC
+#define PC3_Pin GPIO_PIN_3
+#define PC3_GPIO_Port GPIOC
 #define B1_Pin GPIO_PIN_0
 #define B1_GPIO_Port GPIOA
 #define MEMS_INT1_Pin GPIO_PIN_1
@@ -102,8 +108,6 @@
 #define B5_GPIO_Port GPIOA
 #define VSYNC_Pin GPIO_PIN_4
 #define VSYNC_GPIO_Port GPIOA
-#define X_ADC_Pin GPIO_PIN_5
-#define X_ADC_GPIO_Port GPIOA
 #define G2_Pin GPIO_PIN_6
 #define G2_GPIO_Port GPIOA
 #define ACP_RST_Pin GPIO_PIN_7
@@ -214,10 +218,6 @@
 #define D3_GPIO_Port GPIOD
 #define G7_Pin GPIO_PIN_3
 #define G7_GPIO_Port GPIOD
-#define X_GND_Pin GPIO_PIN_4
-#define X_GND_GPIO_Port GPIOD
-#define Y_GND_Pin GPIO_PIN_5
-#define Y_GND_GPIO_Port GPIOD
 #define B2_Pin GPIO_PIN_6
 #define B2_GPIO_Port GPIOD
 #define G3_Pin GPIO_PIN_10

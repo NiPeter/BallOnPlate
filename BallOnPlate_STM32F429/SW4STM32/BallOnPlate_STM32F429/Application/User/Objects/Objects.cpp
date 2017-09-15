@@ -25,7 +25,6 @@ Servo Servos[6] = {
 		Servo(&htim9,TIM_CHANNEL_1),	// PE5 - ¯ó³ty
 		Servo(&htim4,TIM_CHANNEL_2),	// PB7 - Niebieski
 		Servo(&htim2,TIM_CHANNEL_2),	// PB3 - Fioletowy
-
 		Servo(&htim3,TIM_CHANNEL_3),	// PC8 - Bia³y
 		Servo(&htim3,TIM_CHANNEL_1),	// PB4 - Pomarañczowy
 
@@ -44,10 +43,10 @@ PlatformController 	Controller(Servos,&Steward);
 
 
 /***	TOUCH PANEL		***/
-AnalogPin 			XAnalog(&hadc1,X_ADC_GPIO_Port,X_ADC_Pin);
-AnalogPin 			YAnalog(&hadc2,Y_ADC_GPIO_Port,Y_ADC_Pin);
-Pin					XGnd(X_GND_GPIO_Port,X_GND_Pin);
-Pin					YGnd(Y_GND_GPIO_Port,Y_GND_Pin);
+AnalogPin 			XAnalog(&hadc3,PF6_GPIO_Port,PF6_Pin);
+AnalogPin 			YAnalog(&hadc1,PC3_GPIO_Port,PC3_Pin);
+Pin					XGnd(PE2_GPIO_Port,PE2_Pin);
+Pin					YGnd(PE4_GPIO_Port,PE4_Pin);
 
 TouchPanel4W 		Panel(XAnalog,XGnd,YAnalog,YGnd);
 /********************************************************/
@@ -59,12 +58,12 @@ TouchPanel4W 		Panel(XAnalog,XGnd,YAnalog,YGnd);
 double kpX = 0.05;
 double kiX = 0.08;
 double kdX = 0.04;
-double nX = 8;
+double nX = 6;
 
 double kpY = 0.05;
 double kiY = 0.08;
 double kdY = 0.04;
-double nY = 8;
+double nY = 6;
 
 double dt = 0.02;
 
