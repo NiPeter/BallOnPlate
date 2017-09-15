@@ -21,15 +21,13 @@ Communicator Comm(&Bluetooth);
 /***	CONTROLLER	***/
 Servo Servos[6] = {
 
-		Servo(&htim4,TIM_CHANNEL_2),	// PB7 - Niebieski
-
-		Servo(&htim3,TIM_CHANNEL_1),	// PB4 - Pomarañczowy
-		Servo(&htim2,TIM_CHANNEL_2),	// PB3 - Fioletowy
-
 		Servo(&htim9,TIM_CHANNEL_2), 	// PE6 - Br¹zowy
 		Servo(&htim9,TIM_CHANNEL_1),	// PE5 - ¯ó³ty
+		Servo(&htim4,TIM_CHANNEL_2),	// PB7 - Niebieski
+		Servo(&htim2,TIM_CHANNEL_2),	// PB3 - Fioletowy
 
 		Servo(&htim3,TIM_CHANNEL_3),	// PC8 - Bia³y
+		Servo(&htim3,TIM_CHANNEL_1),	// PB4 - Pomarañczowy
 
 };
 
