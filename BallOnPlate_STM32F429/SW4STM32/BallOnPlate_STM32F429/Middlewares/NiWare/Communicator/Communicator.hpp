@@ -17,12 +17,14 @@ char * ftostr(float num, char * str);
 
 class Communicator
 {
+protected:
 	static const char CP_MSG_SIZE = 30;
 	Serial* SerialPort;
 
 public:
 
 	Communicator(Serial* serial);
+	Communicator(){SerialPort = NULL;};
 	~Communicator();
 
 	Command receiveCmd(bool *cmdReceived = NULL);

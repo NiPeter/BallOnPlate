@@ -7,8 +7,9 @@
 
 #include "PlatformCommunicator.h"
 
-PlatformCommunicator::PlatformCommunicator()
-	: Bluetooth(&huart1),Communicator(&Bluetooth){
+PlatformCommunicator::PlatformCommunicator():Bluetooth(&huart1){
+
+	SerialPort = &Bluetooth;
 
 	  /* definition and creation of txSemaphore */
 	  osSemaphoreDef(txSemaphore);
@@ -26,17 +27,6 @@ PlatformCommunicator::~PlatformCommunicator() {
 }
 
 void PlatformCommunicator::TxTask(const void* argument) {
-	osSemaphoreWait(rxSemaphoreHandle,osWaitForever);
-	/* Infinite loop */
-	for(;;)
-	{
-		osSemaphoreWait(rxSemaphoreHandle,osWaitForever);
-		Bluetooth.processRxISR();
-	}
-}
-
-void PlatformCommunicator::RxTask(const void* argument) {
-
 	osSemaphoreWait(txSemaphoreHandle,osWaitForever);
 
 	/* Infinite loop */
@@ -47,12 +37,22 @@ void PlatformCommunicator::RxTask(const void* argument) {
 	}
 }
 
+void PlatformCommunicator::RxTask(const void* argument) {
+	osSemaphoreWait(rxSemaphoreHandle,osWaitForever);
+	/* Infinite loop */
+	for(;;)
+	{
+		osSemaphoreWait(rxSemaphoreHandle,osWaitForever);
+		Bluetooth.processRxISR();
+	}
+}
+
 void PlatformCommunicator::UARTRxCpltCallback(UART_HandleTypeDef* huart) {
 	if(huart->Instance == Bluetooth.getUARTInstance())
-		osSemaphoreRelease(txSemaphoreHandle);
+		osSemaphoreRelease(rxSemaphoreHandle);
 }
 
 void PlatformCommunicator::UARTTxCpltCallback(UART_HandleTypeDef* huart) {
 	if(huart->Instance == Bluetooth.getUARTInstance())
-		osSemaphoreRelease(rxSemaphoreHandle);
+		osSemaphoreRelease(txSemaphoreHandle);
 }

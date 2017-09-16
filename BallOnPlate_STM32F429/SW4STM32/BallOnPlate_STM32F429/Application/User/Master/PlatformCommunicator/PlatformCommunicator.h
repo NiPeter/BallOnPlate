@@ -18,7 +18,7 @@
 /*
  *
  */
-class PlatformCommunicator : Communicator{
+class PlatformCommunicator : public Communicator{
 public:
 	HC05 		Bluetooth;
 	PlatformCommunicator();

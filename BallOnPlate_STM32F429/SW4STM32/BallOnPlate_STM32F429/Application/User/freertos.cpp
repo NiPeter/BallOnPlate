@@ -52,10 +52,11 @@
 #include "cmsis_os.h"
 
 /* USER CODE BEGIN Includes */
-#include "Objects/Objects.hpp"
+
 #include "Master/Master.h"
 #include "Master/BallControl/Axis.h"
 #include "Master/BallControl/DOF.h"
+#include <PID/DiscreteTimePID/DiscreteTimePID.h>
 
 /* USER CODE END Includes */
 
@@ -172,11 +173,11 @@ void MX_FREERTOS_Init(void) {
 	touchPanelTaskHandle = osThreadCreate(osThread(touchPanelTask), NULL);
 
 	/* definition and creation of rxTask */
-	osThreadDef(rxTask, StartRxTask, osPriorityBelowNormal, 0, 128);
+	osThreadDef(rxTask, StartRxTask, osPriorityRealtime, 0, 128);
 	rxTaskHandle = osThreadCreate(osThread(rxTask), NULL);
 
 	/* definition and creation of txTask */
-	osThreadDef(txTask, StartTxTask, osPriorityBelowNormal, 0, 128);
+	osThreadDef(txTask, StartTxTask, osPriorityRealtime, 0, 128);
 	txTaskHandle = osThreadCreate(osThread(txTask), NULL);
 
 	/* USER CODE BEGIN RTOS_THREADS */
@@ -195,8 +196,9 @@ void StartDefaultTask(void const * argument)
 
 	/* USER CODE BEGIN StartDefaultTask */
 
-	StartProcedure();
+	master->Communicator.Bluetooth.begin();
 
+	StartProcedure();
 	bool stopbuff = true;
 
 	/* Infinite loop */
@@ -205,11 +207,24 @@ void StartDefaultTask(void const * argument)
 		prev_td = td;
 		td = master->Panel.IsTouched();
 
+		bool cmdFlag = false;
+		Command cmd = master->Communicator.receiveCmd(&cmdFlag);
 
 
 
-
-
+		if(cmdFlag){
+			switch(cmd.getType()){
+			case Stop:
+				stopbuff = false;
+				break;
+			case Start:
+				stopbuff = true;
+				break;
+			default:
+				break;
+			}
+		}
+		td = td && stopbuff;
 
 		if( ((prev_td == true) && (td == false))  ){
 			td_inc++;
@@ -228,6 +243,15 @@ void StartDefaultTask(void const * argument)
 		if(td){
 			X = master->Panel.GetX();
 			Y = master->Panel.GetY();
+
+			char str[50];
+			char xstr[10];
+			char ystr[10];
+			ftostr(X,xstr);
+			ftostr(Y,ystr);
+			sprintf(str,"X = %s\r\nY = %s\r\n",xstr,ystr);
+			master->Communicator.Bluetooth.writeStr(str);
+
 			YPid->Start();
 			XPid->Start();
 		}else{
@@ -250,7 +274,7 @@ void StartDefaultTask(void const * argument)
 
 
 
-		osDelay(10);
+		osDelay(500);
 	}
 	/* USER CODE END StartDefaultTask */
 }
