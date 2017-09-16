@@ -8,15 +8,21 @@ const TouchPanel4W::Corr TouchPanel4W::sXCorr  = {
 
 const TouchPanel4W::Corr TouchPanel4W::sYCorr = {
 		248, 3830, 304
- };
+};
 
 
-TouchPanel4W::TouchPanel4W(AnalogPin &x_analog,Pin &x_gnd,AnalogPin &y_analog,Pin &y_gnd)
+TouchPanel4W::TouchPanel4W(AnalogPin *x_analog,Pin *x_gnd,AnalogPin *y_analog,Pin *y_gnd)
 :XAnalog(x_analog),YAnalog(y_analog),XGnd(x_gnd),YGnd(y_gnd){
 	X = 0;
 	Y = 0;
 	Touched = false;
 	InitFilters();
+}
+
+
+TouchPanel4W::~TouchPanel4W() {
+	delete XFilter;
+	delete YFilter;
 }
 
 /**
@@ -40,7 +46,7 @@ void TouchPanel4W::Process(void){
 
 	PrepareTouchDetection();
 	osDelay(settlingTimeMs);
-	bool analogRead = XAnalog.Read();
+	bool analogRead = XAnalog->Read();
 
 	if( analogRead != false){
 		if(touch_inc){
@@ -61,12 +67,12 @@ void TouchPanel4W::Process(void){
 
 
 
-//	if(touch_inc == 0){
-//		XFilter->Reset();
-//		YFilter->Reset();
-//		Touched = false;
-//		return;
-//	}
+	//	if(touch_inc == 0){
+	//		XFilter->Reset();
+	//		YFilter->Reset();
+	//		Touched = false;
+	//		return;
+	//	}
 
 	float tmpX = XFilter->Filter(MeasureX());
 	float corrX = FCorr(tmpX,&sXCorr);
@@ -76,27 +82,14 @@ void TouchPanel4W::Process(void){
 
 	taskENTER_CRITICAL();{
 		if(tmpX && tmpY){
-		X= corrX;
-		Y= corrY;
-		Touched = true;
+			X= corrX;
+			Y= corrY;
+			Touched = true;
 		}
 	}taskEXIT_CRITICAL();
 
 }
 /********************************************************/
-
-
-
-/**
- * @brief Conversion Complete Callback,
- * @note Should be called in ADC interrupt!
- * @param hadc
- */
-void TouchPanel4W::ADC_ConvCpltCallback (ADC_HandleTypeDef * hadc){
-
-}
-/********************************************************/
-
 
 
 
@@ -108,17 +101,17 @@ void TouchPanel4W::ADC_ConvCpltCallback (ADC_HandleTypeDef * hadc){
 uint32_t TouchPanel4W::MeasureX(){
 	PrepareXMeasurement();
 	osDelay(settlingTimeMs);
-	YAnalog.Measure();
-	HAL_ADC_PollForConversion(YAnalog.GetADC_Handle(),100);
-	return YAnalog.GetADCValue();
+	YAnalog->Measure();
+	HAL_ADC_PollForConversion(YAnalog->GetADC_Handle(),100);
+	return YAnalog->GetADCValue();
 
 }
 uint32_t TouchPanel4W::MeasureY(){
 	PrepareYMeasurement();
 	osDelay(settlingTimeMs);
-	XAnalog.Measure();
-	HAL_ADC_PollForConversion(XAnalog.GetADC_Handle(),100);
-	return XAnalog.GetADCValue();
+	XAnalog->Measure();
+	HAL_ADC_PollForConversion(XAnalog->GetADC_Handle(),100);
+	return XAnalog->GetADCValue();
 
 }
 
@@ -130,16 +123,16 @@ uint32_t TouchPanel4W::MeasureY(){
  * @param hiZ
  */
 /********************************************************/
-void TouchPanel4W::PrepareMeasurement(AnalogPin &analog, Pin &vcc, Pin &gnd, Pin &hiZ){
-	analog.SetAnalogMode();
+void TouchPanel4W::PrepareMeasurement(AnalogPin *analog, Pin *vcc, Pin *gnd, Pin *hiZ){
+	analog->SetAnalogMode();
 
-	hiZ.SetInputMode();
+	hiZ->SetInputMode();
 
-	vcc.SetOutputMode();
-	vcc.Write(true);
+	vcc->SetOutputMode();
+	vcc->Write(true);
 
-	gnd.SetOutputMode();
-	gnd.Write(false);
+	gnd->SetOutputMode();
+	gnd->Write(false);
 }
 
 void TouchPanel4W::PrepareXMeasurement(){
@@ -150,11 +143,11 @@ void TouchPanel4W::PrepareYMeasurement(){
 }
 
 void TouchPanel4W::PrepareTouchDetection(){
-	XAnalog.SetInputMode(PullUp);
-	YGnd.SetOutputMode(PullDown);
+	XAnalog->SetInputMode(PullUp);
+	YGnd->SetOutputMode(PullDown);
 
-	YAnalog.SetInputMode();
-	XGnd.SetInputMode();
+	YAnalog->SetInputMode();
+	XGnd->SetInputMode();
 }
 /********************************************************/
 
@@ -162,7 +155,7 @@ void TouchPanel4W::PrepareTouchDetection(){
 
 float TouchPanel4W::FCorr(float value, const struct Corr * corr) {
 
-//	return ((value - corr->adc_min)*corr->size)/(corr->adc_max-corr->adc_min);
+	//	return ((value - corr->adc_min)*corr->size)/(corr->adc_max-corr->adc_min);
 
 	float dm = corr->adc_max - corr->adc_min;
 

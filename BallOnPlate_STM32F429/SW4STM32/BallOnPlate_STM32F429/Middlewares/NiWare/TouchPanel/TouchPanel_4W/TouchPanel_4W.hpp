@@ -26,10 +26,20 @@ class TouchPanel4W : public ITouchPanel{
 	};
 
 public:
-	TouchPanel4W(AnalogPin &x_analog, Pin &x_gnd, AnalogPin &y_analog, Pin &y_gnd);
+
+	TouchPanel4W(AnalogPin *x_analog, Pin *x_gnd, AnalogPin *y_analog, Pin *y_gnd);
+	~TouchPanel4W();
 
 	void Process(void);
-	void ADC_ConvCpltCallback (ADC_HandleTypeDef * hadc);
+
+protected:
+	AnalogPin 		*XAnalog,	*YAnalog;
+	Pin				*XGnd,		*YGnd;
+
+	IFilter<float,float>		*XFilter;
+	IFilter<float,float>		*YFilter;
+
+	virtual void InitFilters();
 
 private:
 
@@ -38,14 +48,8 @@ private:
 	static const struct Corr	sXCorr;
 	static const struct Corr	sYCorr;
 
-	AnalogPin 		&XAnalog,	&YAnalog;
-	Pin				&XGnd,		&YGnd;
-
-	IFilter<float,float>		*XFilter;
-	IFilter<float,float>		*YFilter;
-
 	void PrepareTouchDetection();
-	void PrepareMeasurement(AnalogPin &analog, Pin &vcc, Pin &gnd, Pin &hiZ);
+	void PrepareMeasurement(AnalogPin *analog, Pin *vcc, Pin *gnd, Pin *hiZ);
 	void PrepareXMeasurement();
 	void PrepareYMeasurement();
 
@@ -53,8 +57,6 @@ private:
 	uint32_t MeasureY();
 
 	float FCorr(float value, const struct Corr * corr);
-
-	void InitFilters();
 
 };
 

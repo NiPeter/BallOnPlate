@@ -10,18 +10,9 @@
 #include "cmsis_os.h"
 
 
-#include "Communicator/Serial/HC05/HC05.hpp"
-#include "Communicator/Communicator.hpp"
+#include "../Master/Master.h"
 
-
-
-extern osSemaphoreId txSemaphoreHandle;
-extern osSemaphoreId rxSemaphoreHandle;
-
-extern HC05 Bluetooth;
-
-
-
+extern Master* master;
 
 /**
  *
@@ -30,13 +21,7 @@ extern HC05 Bluetooth;
 void StartRxTask(void const * argument)
 {
 	/* USER CODE BEGIN StartRxTask */
-	osSemaphoreWait(rxSemaphoreHandle,osWaitForever);
-	/* Infinite loop */
-	for(;;)
-	{
-		osSemaphoreWait(rxSemaphoreHandle,osWaitForever);
-		Bluetooth.processRxISR();
-	}
+	master->RxTask(argument);
 	/* USER CODE END StartRxTask */
 }
 /********************************************************/
@@ -50,13 +35,7 @@ void StartRxTask(void const * argument)
 void StartTxTask(void const * argument)
 {
 	/* USER CODE BEGIN StartTxTask */
-	osSemaphoreWait(txSemaphoreHandle,osWaitForever);
-	/* Infinite loop */
-	for(;;)
-	{
-		osSemaphoreWait(txSemaphoreHandle,osWaitForever);
-		Bluetooth.processTxISR();
-	}
+	master->TxTask(argument);
 	/* USER CODE END StartTxTask */
 }
 /********************************************************/
@@ -69,9 +48,7 @@ void StartTxTask(void const * argument)
  */
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
 
-	if(huart->Instance == Bluetooth.getUARTInstance())
-		osSemaphoreRelease(txSemaphoreHandle);
-
+	master->UARTTxCpltCallback(huart);
 }
 /********************************************************/
 
@@ -81,9 +58,7 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
  *
  */
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
-
-	if(huart->Instance == Bluetooth.getUARTInstance())
-		osSemaphoreRelease(rxSemaphoreHandle);
+	master->UARTRxCpltCallback(huart);
 
 }
 /********************************************************/

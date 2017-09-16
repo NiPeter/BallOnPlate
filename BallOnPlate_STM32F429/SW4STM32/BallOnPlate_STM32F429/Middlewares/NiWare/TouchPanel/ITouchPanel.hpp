@@ -24,7 +24,6 @@ public:
 	float GetY(void){return Y;};
 
 	virtual void Process(void) = 0;										// Process function should be called periodically
-	virtual void ADC_ConvCpltCallback (ADC_HandleTypeDef * hadc) = 0;	// Callback function should be added to conversion complete callback
 
 protected:
 /***	Variables  	***/

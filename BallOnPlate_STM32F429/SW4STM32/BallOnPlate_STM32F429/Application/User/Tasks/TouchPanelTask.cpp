@@ -9,10 +9,9 @@
 #include "task.h"
 #include "cmsis_os.h"
 
-#include "TouchPanel/TouchPanel_4W/TouchPanel_4W.hpp"
+#include "../Master/Master.h"
 
-
-extern TouchPanel4W		Panel;
+extern Master* master;
 
 
 
@@ -22,17 +21,6 @@ extern TouchPanel4W		Panel;
  * @param argument
  */
 void StartTouchPanelTask(void const * argument){
-	TickType_t xLastWakeTime;
-	const TickType_t xFrequency = 5;
-
-	xLastWakeTime = xTaskGetTickCount();
-
-	while(true){
-
-		vTaskDelayUntil( &xLastWakeTime, xFrequency );
-
-		Panel.Process();
-
-	}
+	master->TouchPanelTask(argument);
 }
 /********************************************************/

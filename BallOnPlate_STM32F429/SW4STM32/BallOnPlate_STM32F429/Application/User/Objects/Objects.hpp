@@ -27,11 +27,10 @@ extern "C" {
 #endif
 
 
-#include "PlatformController/PlatformController.hpp"
-#include "BallControl/DOF.h"
+#include <IKController/IKController.hpp>
 
 #include "TouchPanel/TouchPanel_4W/TouchPanel_4W.hpp"
-#include "BallControl/Axis.h"
+
 
 #include "PID/DiscreteTimePID/DiscreteTimePID.h"
 
@@ -40,22 +39,12 @@ extern "C" {
 
 /********************************************************/
 
-extern HC05					Bluetooth;
-extern Communicator 		Comm;
 
-extern PlatformController 	Controller;
-extern RollDOF 				Roll;
-extern PitchDOF 			Pitch;
-
-extern TouchPanel4W 		Panel;
-
-extern XAxis 				XPos;
-extern YAxis 				YPos;
-
-extern double kpX,kiX,kdX,nX,kpY,kiY,kdY,nY,dt;
-
-extern DiscreteTimePID XPid;
-extern DiscreteTimePID YPid;
+//
+//extern double kpX,kiX,kdX,nX,kpY,kiY,kdY,nY,dt;
+//
+//extern DiscreteTimePID* XPid;
+//extern DiscreteTimePID* YPid;
 
 
 #endif /* OBJECTS_HPP_ */
