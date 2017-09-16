@@ -24,8 +24,6 @@ public:
 
 	void Execute(Command cmd);
 
-
-
 	void TouchPanelTask(void const * argument);
 
 	void TxTask(void const * argument);

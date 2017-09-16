@@ -79,14 +79,14 @@ YAxis 				*YPos;
 RollDOF 			*Roll;
 PitchDOF 			*Pitch;
 
-double kpX = 0.06;
-double kiX = 0.02;
-double kdX = 0.04;
+double kpX = 0.065;
+double kiX = 0.03;
+double kdX = 0.044;
 double nX = 10;
 
-double kpY = 0.06;
-double kiY = 0.02;
-double kdY = 0.04;
+double kpY = 0.065;
+double kiY = 0.03;
+double kdY = 0.044;
 double nY = 10;
 
 double dt = 0.005;
@@ -195,7 +195,7 @@ void StartDefaultTask(void const * argument)
 {
 
 	/* USER CODE BEGIN StartDefaultTask */
-
+	int inc = 0;
 	master->Communicator.Bluetooth.begin();
 
 	StartProcedure();
@@ -276,11 +276,15 @@ void StartDefaultTask(void const * argument)
 		errorY = YPid->GetError();
 
 
-		cmd = Command(pidXError,errorX);
-		master->Communicator.sendCmd(cmd);
+		inc++;
+		if( inc == 50){
+			cmd = Command(pidXError,errorX);
+			master->Communicator.sendCmd(cmd);
 
-		cmd = Command(pidYError,errorY);
-		master->Communicator.sendCmd(cmd);
+			cmd = Command(pidYError,errorY);
+			master->Communicator.sendCmd(cmd);
+			inc=0;
+		}
 
 
 		osDelay(10);
