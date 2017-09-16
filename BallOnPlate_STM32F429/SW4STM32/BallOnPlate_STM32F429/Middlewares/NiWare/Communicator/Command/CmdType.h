@@ -15,10 +15,14 @@ typedef enum {
 	Start,
 	Set,
 	Get,
-	SetX = 30,
+	SetX,
 	SetY,
 	GetX,
-	GetY
+	GetY,
+	setTargetX = 31,
+	setTargetY = 32,
+	pidXError = 33,
+	pidYError = 34,
 } CmdType_e;
 
 

@@ -79,17 +79,17 @@ YAxis 				*YPos;
 RollDOF 			*Roll;
 PitchDOF 			*Pitch;
 
-double kpX = 0.05;
-double kiX = 0.08;
+double kpX = 0.06;
+double kiX = 0.02;
 double kdX = 0.04;
-double nX = 8;
+double nX = 10;
 
-double kpY = 0.05;
-double kiY = 0.08;
+double kpY = 0.06;
+double kiY = 0.02;
 double kdY = 0.04;
-double nY = 8;
+double nY = 10;
 
-double dt = 0.02;
+double dt = 0.005;
 
 float X,Y;
 int td,prev_td,td_inc;
@@ -214,12 +214,23 @@ void StartDefaultTask(void const * argument)
 
 		if(cmdFlag){
 			switch(cmd.getType()){
+
 			case Stop:
 				stopbuff = false;
 				break;
+
 			case Start:
 				stopbuff = true;
 				break;
+
+			case setTargetX:
+				setpointX = cmd.getParam();
+				break;
+
+			case setTargetY:
+				setpointY = cmd.getParam();
+				break;
+
 			default:
 				break;
 			}
@@ -244,14 +255,6 @@ void StartDefaultTask(void const * argument)
 			X = master->Panel.GetX();
 			Y = master->Panel.GetY();
 
-			char str[50];
-			char xstr[10];
-			char ystr[10];
-			ftostr(X,xstr);
-			ftostr(Y,ystr);
-			sprintf(str,"X = %s\r\nY = %s\r\n",xstr,ystr);
-			master->Communicator.Bluetooth.writeStr(str);
-
 			YPid->Start();
 			XPid->Start();
 		}else{
@@ -273,8 +276,14 @@ void StartDefaultTask(void const * argument)
 		errorY = YPid->GetError();
 
 
+		cmd = Command(pidXError,errorX);
+		master->Communicator.sendCmd(cmd);
 
-		osDelay(500);
+		cmd = Command(pidYError,errorY);
+		master->Communicator.sendCmd(cmd);
+
+
+		osDelay(10);
 	}
 	/* USER CODE END StartDefaultTask */
 }

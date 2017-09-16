@@ -31,7 +31,7 @@ extern "C" {
 class PlatformTouchPanel : public TouchPanel4W{
 public:
 
-	PlatformTouchPanel(	TickType_t period = 5);
+	PlatformTouchPanel(	TickType_t period = 1);
 	virtual ~PlatformTouchPanel();
 
 	void TouchPanelTask(void const * argument);
