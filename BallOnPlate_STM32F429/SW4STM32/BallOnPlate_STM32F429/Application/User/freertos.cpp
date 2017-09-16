@@ -78,6 +78,18 @@ YAxis 				*YPos;
 RollDOF 			*Roll;
 PitchDOF 			*Pitch;
 
+double kpX = 0.05;
+double kiX = 0.08;
+double kdX = 0.04;
+double nX = 8;
+
+double kpY = 0.05;
+double kiY = 0.08;
+double kdY = 0.04;
+double nY = 8;
+
+double dt = 0.02;
+
 float X,Y;
 int td,prev_td,td_inc;
 
@@ -112,17 +124,7 @@ void MX_FREERTOS_Init(void) {
 	/* USER CODE BEGIN Init */
 	master = new Master;
 
-	double kpX = 0.05;
-	double kiX = 0.08;
-	double kdX = 0.04;
-	double nX = 8;
 
-	double kpY = 0.05;
-	double kiY = 0.08;
-	double kdY = 0.04;
-	double nY = 8;
-
-	double dt = 0.02;
 
 	XPos = new XAxis(master->Panel);
 	YPos = new YAxis(master->Panel);
@@ -194,13 +196,60 @@ void StartDefaultTask(void const * argument)
 	/* USER CODE BEGIN StartDefaultTask */
 
 	StartProcedure();
-	XPid->Start();
-	YPid->Start();
+
+	bool stopbuff = true;
 
 	/* Infinite loop */
 	for(;;)
 	{
-		uint32_t heap = xPortGetFreeHeapSize();
+		prev_td = td;
+		td = master->Panel.IsTouched();
+
+
+
+
+
+
+
+		if( ((prev_td == true) && (td == false))  ){
+			td_inc++;
+
+			XPid->Reset();
+			YPid->Reset();
+			YPid->Stop();
+			XPid->Stop();
+
+			Roll->Set(0);
+			Pitch->Set(0);
+
+			StartProcedure();
+		}
+
+		if(td){
+			X = master->Panel.GetX();
+			Y = master->Panel.GetY();
+			YPid->Start();
+			XPid->Start();
+		}else{
+			X = 0;
+			Y = 0;
+		}
+
+		XPid->Tune(kpX,kiX,kdX,nX);
+		YPid->Tune(kpY,kiY,kdY,nY);
+
+
+		XPid->SetInput(23+setpointX);
+		YPid->SetInput(19+setpointY);
+
+		outX = XPid->GetOutput();
+		outY = YPid->GetOutput();
+
+		errorX = XPid->GetError();
+		errorY = YPid->GetError();
+
+
+
 		osDelay(10);
 	}
 	/* USER CODE END StartDefaultTask */
