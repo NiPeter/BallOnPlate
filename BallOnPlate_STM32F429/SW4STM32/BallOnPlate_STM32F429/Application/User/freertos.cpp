@@ -112,15 +112,15 @@ void MX_FREERTOS_Init(void) {
 	/* USER CODE BEGIN Init */
 	master = new Master;
 
-	double kpX = 0.045;
-	double kiX = 0.001;
+	double kpX = 0.05;
+	double kiX = 0.08;
 	double kdX = 0.04;
-	double nX = 15;
+	double nX = 8;
 
-	double kpY = 0.045;
-	double kiY = 0.001;
+	double kpY = 0.05;
+	double kiY = 0.08;
 	double kdY = 0.04;
-	double nY = 15;
+	double nY = 8;
 
 	double dt = 0.02;
 
