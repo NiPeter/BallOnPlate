@@ -23,6 +23,7 @@
 class StewardPlatform {
 
 public:
+
 	StewardPlatform();
 	virtual ~StewardPlatform();
 
@@ -34,6 +35,8 @@ public:
 
 	void UART_RxCpltCallback(UART_HandleTypeDef *huart);
 	void UART_TxCpltCallback(UART_HandleTypeDef *huart);
+
+
 
 public:
 

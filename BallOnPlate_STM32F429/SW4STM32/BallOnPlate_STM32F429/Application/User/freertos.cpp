@@ -52,55 +52,20 @@
 #include "cmsis_os.h"
 
 /* USER CODE BEGIN Includes */
-
-#include <PID/DiscreteTimePID/DiscreteTimePID.h>
-
-#include "StewardPlatform/PlatformModes/PIDMode/BallControl/Axis.h"
-#include "StewardPlatform/PlatformModes/PIDMode/BallControl/DOF.h"
 #include "StewardPlatform/StewardPlatform.h"
 
 /* USER CODE END Includes */
 
 /* Variables -----------------------------------------------------------------*/
 osThreadId defaultTaskHandle;
-//osThreadId pidTaskHandle;
 
 /* USER CODE BEGIN Variables */
 StewardPlatform* stewardPlatform;
-//DiscreteTimePID* XPid;
-//DiscreteTimePID* YPid;
-//
-//XAxis 				*XPos;
-//YAxis 				*YPos;
-//RollDOF 			*Roll;
-//PitchDOF 			*Pitch;
-//
-//double kpX = 0.065;
-//double kiX = 0.03;
-//double kdX = 0.044;
-//double nX = 10;
-//
-//double kpY = 0.065;
-//double kiY = 0.03;
-//double kdY = 0.044;
-//double nY = 10;
-//
-//double dt = 0.005;
-//
-//float X,Y;
-//int td,prev_td,td_inc;
-//
-//double setpointX = 0;
-//double setpointY = 0;
-//
-//float outX,outY;
-//double errorX;
-//double errorY;
+
 /* USER CODE END Variables */
 
 /* Function prototypes -------------------------------------------------------*/
 void StartDefaultTask(void const * argument);
-//extern void StartPIDTask(void const * argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -117,17 +82,6 @@ void StartProcedure(void);
 void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN Init */
 	stewardPlatform = new StewardPlatform;
-//
-//
-//
-//	XPos = new XAxis(stewardPlatform->TouchPanel);
-//	YPos = new YAxis(stewardPlatform->TouchPanel);
-//	Roll = new RollDOF(stewardPlatform->Platform.Controller);
-//	Pitch= new PitchDOF(stewardPlatform->Platform.Controller);
-//
-//
-//	XPid = new DiscreteTimePID(kpX,kiX,kdX,dt,nX,XPos,Pitch);
-//	YPid = new DiscreteTimePID(kpY,kiY,kdY,dt,nY,YPos,Roll);
 
   /* USER CODE END Init */
 
@@ -148,10 +102,6 @@ void MX_FREERTOS_Init(void) {
   osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 512);
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 
-  /* definition and creation of pidTask */
-//  osThreadDef(pidTask, StartPIDTask, osPriorityHigh, 0, 256);
-//  pidTaskHandle = osThreadCreate(osThread(pidTask), NULL);
-
   /* USER CODE BEGIN RTOS_THREADS */
 	/* add threads, ... */
 
@@ -168,98 +118,15 @@ void StartDefaultTask(void const * argument)
 
   /* USER CODE BEGIN StartDefaultTask */
 	StartProcedure();
-	int inc = 0;
+
 	stewardPlatform->CommunicationCenter.Bluetooth.begin();
 	stewardPlatform->Mode->Start();
 
 
-	bool stopbuff = true;
-
 	/* Infinite loop */
 	for(;;)
 	{
-//		prev_td = td;
-//		td = stewardPlatform->TouchPanel.IsTouched();
-//
-//		bool cmdFlag = false;
-//		Command cmd = stewardPlatform->CommunicationCenter.receiveCmd(&cmdFlag);
-//
-//
-//
-//		if(cmdFlag){
-//			switch(cmd.getType()){
-//
-//			case Stop:
-//				stopbuff = false;
-//				break;
-//
-//			case Start:
-//				stopbuff = true;
-//				break;
-//
-//			case setTargetX:
-//				setpointX = cmd.getParam();
-//				break;
-//
-//			case setTargetY:
-//				setpointY = cmd.getParam();
-//				break;
-//
-//			default:
-//				break;
-//			}
-//		}
-//		td = td && stopbuff;
-//
-//		if( ((prev_td == true) && (td == false))  ){
-//			td_inc++;
-//
-//			XPid->Reset();
-//			YPid->Reset();
-//			YPid->Stop();
-//			XPid->Stop();
-//
-//			Roll->Set(0);
-//			Pitch->Set(0);
-//
-//			StartProcedure();
-//		}
-//
-//		if(td){
-//			X = stewardPlatform->TouchPanel.GetX();
-//			Y = stewardPlatform->TouchPanel.GetY();
-//
-//			YPid->Start();
-//			XPid->Start();
-//		}else{
-//			X = 0;
-//			Y = 0;
-//		}
-//
-//		XPid->Tune(kpX,kiX,kdX,nX);
-//		YPid->Tune(kpY,kiY,kdY,nY);
-//
-//
-//		XPid->SetInput(23+setpointX);
-//		YPid->SetInput(19+setpointY);
-//
-//		outX = XPid->GetOutput();
-//		outY = YPid->GetOutput();
-//
-//		errorX = XPid->GetError();
-//		errorY = YPid->GetError();
-//
-//
-//		inc++;
-//		if( inc == 50){
-//			cmd = Command(pidXError,errorX);
-//			stewardPlatform->CommunicationCenter.sendCmd(cmd);
-//
-//			cmd = Command(pidYError,errorY);
-//			stewardPlatform->CommunicationCenter.sendCmd(cmd);
-//			inc=0;
-//		}
-//
+
 
 		osDelay(10);
 	}
@@ -268,12 +135,13 @@ void StartDefaultTask(void const * argument)
 
 /* USER CODE BEGIN Application */
 
+
+
 /**
  *
  * @param huart
  */
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
-
 	stewardPlatform->UART_TxCpltCallback(huart);
 }
 /********************************************************/
@@ -285,7 +153,6 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
  */
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 	stewardPlatform->UART_RxCpltCallback(huart);
-
 }
 /********************************************************/
 
@@ -310,6 +177,8 @@ void StartProcedure(void){
 	osDelay(100);
 
 }
+
+
 
 /* USER CODE END Application */
 

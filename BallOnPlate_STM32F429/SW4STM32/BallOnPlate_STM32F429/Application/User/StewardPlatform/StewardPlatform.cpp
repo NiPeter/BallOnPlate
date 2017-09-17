@@ -6,7 +6,13 @@
  */
 
 #include "StewardPlatform.h"
+#include <Communicator/Command/CmdType.h>
 
+
+
+/**
+ *
+ */
 StewardPlatform::StewardPlatform() {
 
 	this->Construct();
@@ -14,7 +20,13 @@ StewardPlatform::StewardPlatform() {
 	Mode = new PIDMode(this,10);
 
 }
+/********************************************************/
 
+
+
+/**
+ *
+ */
 StewardPlatform::~StewardPlatform() {
 	delete Mode;
 
@@ -22,7 +34,13 @@ StewardPlatform::~StewardPlatform() {
 	osThreadTerminate(txTaskHandle);
 	osThreadTerminate(touchPanelTaskHandle);
 }
+/********************************************************/
 
+
+
+/**
+ *
+ */
 void StewardPlatform::Construct() {
 	/* definition and creation of rxTask */
 	osThreadDef(StewardPlatformRxTask, RxTask, osPriorityRealtime, 0, 128);
@@ -37,35 +55,94 @@ void StewardPlatform::Construct() {
 	touchPanelTaskHandle = osThreadCreate(osThread(StewardPlatformTouchPanelTask), &TouchPanel);
 
 }
+/********************************************************/
 
+
+
+/**
+ *
+ * @param argument
+ */
 void StewardPlatform::TouchPanelTask(const void* argument) {
 	PlatformTouchPanel* touchPanel;
 
 	touchPanel = (PlatformTouchPanel*) argument;
 	touchPanel->TouchPanelTask(NULL);
 }
+/********************************************************/
 
+
+
+/**
+ *
+ * @param argument
+ */
 void StewardPlatform::TxTask(const void* argument) {
 	PlatformCommunicator* communicationCenter;
 
 	communicationCenter = (PlatformCommunicator*) argument;
 	communicationCenter->TxTask(NULL);
 }
+/********************************************************/
 
+
+
+/**
+ *
+ * @param argument
+ */
 void StewardPlatform::RxTask(const void* argument) {
 	PlatformCommunicator* communicationCenter;
 
 	communicationCenter = (PlatformCommunicator*) argument;
 	communicationCenter->RxTask(NULL);
 }
+/********************************************************/
 
+
+
+/**
+ *
+ * @param huart
+ */
 void StewardPlatform::UART_RxCpltCallback(UART_HandleTypeDef* huart) {
 	CommunicationCenter.UARTRxCpltCallback(huart);
 }
+/********************************************************/
 
+
+
+/**
+ *
+ * @param huart
+ */
 void StewardPlatform::UART_TxCpltCallback(UART_HandleTypeDef* huart) {
 	CommunicationCenter.UARTTxCpltCallback(huart);
 }
+/********************************************************/
 
+
+
+/**
+ *
+ * @param cmd
+ */
 void StewardPlatform::Execute(Command cmd) {
+	CmdType_e 	cmdType = cmd.getType();
+	float		cmdParam = cmd.getParam();
+
+	switch(cmdType){
+
+	case fail:
+		break;
+	case ok:
+		break;
+
+
+
+
+	default:
+		break;
+	}
 }
+/********************************************************/

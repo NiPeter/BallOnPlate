@@ -45,7 +45,7 @@ public:
 		Deadband = deadband;
 	}
 
-	void SetLimits( double max, double min ){
+	void SetOutputLimits( double max, double min ){
 		if( min<max ){
 			Max = max;
 			Min = min;
