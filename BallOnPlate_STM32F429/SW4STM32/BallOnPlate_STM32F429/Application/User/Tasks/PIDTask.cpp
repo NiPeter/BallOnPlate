@@ -13,8 +13,8 @@
 
 
 
-extern DiscreteTimePID	XPid;
-extern DiscreteTimePID	YPid;
+extern DiscreteTimePID*	XPid;
+extern DiscreteTimePID*	YPid;
 
 
 
@@ -24,19 +24,19 @@ extern DiscreteTimePID	YPid;
  */
 void StartPIDTask(void const * argument){
 	TickType_t xLastWakeTime;
-	TickType_t xFrequency = (( XPid.GetTs() + YPid.GetTs() ) * configTICK_RATE_HZ) /2.0;
+	TickType_t xFrequency = (( XPid->GetTs() + YPid->GetTs() ) * configTICK_RATE_HZ) /2;
 
 
-	XPid.SetDeadband(0.3);
-	YPid.SetDeadband(0.3);
+	XPid->SetDeadband(0.3);
+	YPid->SetDeadband(0.3);
 
 	xLastWakeTime = xTaskGetTickCount();
 	while(true){
 
 		vTaskDelayUntil( &xLastWakeTime, xFrequency );
 
-		XPid.Process();
-		YPid.Process();
+		XPid->Process();
+		YPid->Process();
 
 	}
 

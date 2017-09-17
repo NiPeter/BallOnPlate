@@ -52,20 +52,41 @@
 #include "cmsis_os.h"
 
 /* USER CODE BEGIN Includes */
-#include "Objects/Objects.hpp"
+
+#include <PID/DiscreteTimePID/DiscreteTimePID.h>
+
+#include "StewardPlatform/BallControl/Axis.h"
+#include "StewardPlatform/BallControl/DOF.h"
+#include "StewardPlatform/StewardPlatform.h"
 
 /* USER CODE END Includes */
 
 /* Variables -----------------------------------------------------------------*/
 osThreadId defaultTaskHandle;
 osThreadId pidTaskHandle;
-osThreadId touchPanelTaskHandle;
-osThreadId rxTaskHandle;
-osThreadId txTaskHandle;
-osSemaphoreId txSemaphoreHandle;
-osSemaphoreId rxSemaphoreHandle;
 
 /* USER CODE BEGIN Variables */
+StewardPlatform* master;
+DiscreteTimePID* XPid;
+DiscreteTimePID* YPid;
+
+XAxis 				*XPos;
+YAxis 				*YPos;
+RollDOF 			*Roll;
+PitchDOF 			*Pitch;
+
+double kpX = 0.065;
+double kiX = 0.03;
+double kdX = 0.044;
+double nX = 10;
+
+double kpY = 0.065;
+double kiY = 0.03;
+double kdY = 0.044;
+double nY = 10;
+
+double dt = 0.005;
+
 float X,Y;
 int td,prev_td,td_inc;
 
@@ -80,9 +101,6 @@ double errorY;
 /* Function prototypes -------------------------------------------------------*/
 void StartDefaultTask(void const * argument);
 extern void StartPIDTask(void const * argument);
-extern void StartTouchPanelTask(void const * argument);
-extern void StartRxTask(void const * argument);
-extern void StartTxTask(void const * argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -98,21 +116,24 @@ void StartProcedure(void);
 
 void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN Init */
+	master = new StewardPlatform;
+
+
+
+	XPos = new XAxis(master->TouchPanel);
+	YPos = new YAxis(master->TouchPanel);
+	Roll = new RollDOF(master->Platform.Controller);
+	Pitch= new PitchDOF(master->Platform.Controller);
+
+
+	XPid = new DiscreteTimePID(kpX,kiX,kdX,dt,nX,XPos,Pitch);
+	YPid = new DiscreteTimePID(kpY,kiY,kdY,dt,nY,YPos,Roll);
 
   /* USER CODE END Init */
 
   /* USER CODE BEGIN RTOS_MUTEX */
 	/* add mutexes, ... */
   /* USER CODE END RTOS_MUTEX */
-
-  /* Create the semaphores(s) */
-  /* definition and creation of txSemaphore */
-  osSemaphoreDef(txSemaphore);
-  txSemaphoreHandle = osSemaphoreCreate(osSemaphore(txSemaphore), 15);
-
-  /* definition and creation of rxSemaphore */
-  osSemaphoreDef(rxSemaphore);
-  rxSemaphoreHandle = osSemaphoreCreate(osSemaphore(rxSemaphore), 15);
 
   /* USER CODE BEGIN RTOS_SEMAPHORES */
 	/* add semaphores, ... */
@@ -128,20 +149,8 @@ void MX_FREERTOS_Init(void) {
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 
   /* definition and creation of pidTask */
-  osThreadDef(pidTask, StartPIDTask, osPriorityHigh, 0, 512);
+  osThreadDef(pidTask, StartPIDTask, osPriorityHigh, 0, 256);
   pidTaskHandle = osThreadCreate(osThread(pidTask), NULL);
-
-  /* definition and creation of touchPanelTask */
-  osThreadDef(touchPanelTask, StartTouchPanelTask, osPriorityAboveNormal, 0, 256);
-  touchPanelTaskHandle = osThreadCreate(osThread(touchPanelTask), NULL);
-
-  /* definition and creation of rxTask */
-  osThreadDef(rxTask, StartRxTask, osPriorityBelowNormal, 0, 128);
-  rxTaskHandle = osThreadCreate(osThread(rxTask), NULL);
-
-  /* definition and creation of txTask */
-  osThreadDef(txTask, StartTxTask, osPriorityBelowNormal, 0, 128);
-  txTaskHandle = osThreadCreate(osThread(txTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
 	/* add threads, ... */
@@ -158,7 +167,8 @@ void StartDefaultTask(void const * argument)
 {
 
   /* USER CODE BEGIN StartDefaultTask */
-	Bluetooth.begin();
+	int inc = 0;
+	master->CommunicationCenter.Bluetooth.begin();
 
 	StartProcedure();
 	bool stopbuff = true;
@@ -167,21 +177,32 @@ void StartDefaultTask(void const * argument)
 	for(;;)
 	{
 		prev_td = td;
-		td = Panel.IsTouched();
+		td = master->TouchPanel.IsTouched();
 
 		bool cmdFlag = false;
-		Command cmd = Comm.receiveCmd(&cmdFlag);
+		Command cmd = master->CommunicationCenter.receiveCmd(&cmdFlag);
 
 
 
 		if(cmdFlag){
 			switch(cmd.getType()){
+
 			case Stop:
 				stopbuff = false;
 				break;
+
 			case Start:
 				stopbuff = true;
 				break;
+
+			case setTargetX:
+				setpointX = cmd.getParam();
+				break;
+
+			case setTargetY:
+				setpointY = cmd.getParam();
+				break;
+
 			default:
 				break;
 			}
@@ -191,40 +212,51 @@ void StartDefaultTask(void const * argument)
 		if( ((prev_td == true) && (td == false))  ){
 			td_inc++;
 
-			XPid.Reset();
-			YPid.Reset();
-			YPid.Stop();
-			XPid.Stop();
+			XPid->Reset();
+			YPid->Reset();
+			YPid->Stop();
+			XPid->Stop();
 
-			Roll.Set(0);
-			Pitch.Set(0);
+			Roll->Set(0);
+			Pitch->Set(0);
 
 			StartProcedure();
 		}
 
 		if(td){
-			X = Panel.GetX();
-			Y = Panel.GetY();
-			YPid.Start();
-			XPid.Start();
+			X = master->TouchPanel.GetX();
+			Y = master->TouchPanel.GetY();
+
+			YPid->Start();
+			XPid->Start();
 		}else{
 			X = 0;
 			Y = 0;
 		}
 
-		XPid.Tune(kpX,kiX,kdX,nX);
-		YPid.Tune(kpY,kiY,kdY,nY);
+		XPid->Tune(kpX,kiX,kdX,nX);
+		YPid->Tune(kpY,kiY,kdY,nY);
 
 
-		XPid.SetInput(23+setpointX);
-		YPid.SetInput(19+setpointY);
+		XPid->SetInput(23+setpointX);
+		YPid->SetInput(19+setpointY);
 
-		outX = XPid.GetOutput();
-		outY = YPid.GetOutput();
+		outX = XPid->GetOutput();
+		outY = YPid->GetOutput();
 
-		errorX = XPid.GetError();
-		errorY = YPid.GetError();
+		errorX = XPid->GetError();
+		errorY = YPid->GetError();
 
+
+		inc++;
+		if( inc == 50){
+			cmd = Command(pidXError,errorX);
+			master->CommunicationCenter.sendCmd(cmd);
+
+			cmd = Command(pidYError,errorY);
+			master->CommunicationCenter.sendCmd(cmd);
+			inc=0;
+		}
 
 
 		osDelay(10);
@@ -234,24 +266,45 @@ void StartDefaultTask(void const * argument)
 
 /* USER CODE BEGIN Application */
 
+/**
+ *
+ * @param huart
+ */
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
+
+	master->UART_TxCpltCallback(huart);
+}
+/********************************************************/
+
+
+
+/*
+ *
+ */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
+	master->UART_RxCpltCallback(huart);
+
+}
+/********************************************************/
+
 
 
 void StartProcedure(void){
-	Controller.Start();
+	master->Platform.Controller.Start();
 	double q[6] = {0,0,0,0,0,0};
-	Controller.Move(q);
+	master->Platform.Controller.Move(q);
 	osDelay(100);
 
 	q[2] = -0.01;
-	Controller.Move(q);
+	master->Platform.Controller.Move(q);
 	osDelay(300);
 
 	q[2] = 0;
-	Controller.Move(q);
+	master->Platform.Controller.Move(q);
 	osDelay(100);
 
 	q[2] = -0.002;
-	Controller.Move(q);
+	master->Platform.Controller.Move(q);
 	osDelay(100);
 
 }
