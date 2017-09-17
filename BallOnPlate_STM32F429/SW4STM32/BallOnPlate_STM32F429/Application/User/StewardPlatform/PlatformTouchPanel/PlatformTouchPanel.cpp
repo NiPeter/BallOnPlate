@@ -12,7 +12,7 @@ PlatformTouchPanel::PlatformTouchPanel(	TickType_t period)
 					new Pin(PE2_GPIO_Port,PE2_Pin),					//XGnd
 					new AnalogPin(&hadc1,PC3_GPIO_Port,PC3_Pin),	//YAnalog
 					new Pin(PE4_GPIO_Port,PE4_Pin)),
-					xPeriod(period){				//YGnd
+					xSamplingInterval(period){				//YGnd
 	Construct();
 }
 
@@ -34,7 +34,7 @@ void PlatformTouchPanel::TouchPanelTask(const void* argument) {
 
 	while(true){
 
-		vTaskDelayUntil( &xLastWakeTime, xPeriod );
+		vTaskDelayUntil( &xLastWakeTime, xSamplingInterval );
 		Process();
 
 	}

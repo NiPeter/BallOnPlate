@@ -28,8 +28,8 @@ public:
 	static void RxTask(void const * argument);
 	static void TouchPanelTask(void const * argument);
 
-	void UARTRxCpltCallback(UART_HandleTypeDef *huart);
-	void UARTTxCpltCallback(UART_HandleTypeDef *huart);
+	void UART_RxCpltCallback(UART_HandleTypeDef *huart);
+	void UART_TxCpltCallback(UART_HandleTypeDef *huart);
 
 public:
 

@@ -36,8 +36,16 @@ public:
 
 	void TouchPanelTask(void const * argument);
 
+	TickType_t GetSamplingInterval() const {
+		return xSamplingInterval;
+	}
+
+	void SetSamplingInterval(TickType_t samplingInterval) {
+		xSamplingInterval = samplingInterval;
+	}
+
 private:
-	const TickType_t xPeriod;
+	TickType_t xSamplingInterval;
 	void Construct();
 };
 

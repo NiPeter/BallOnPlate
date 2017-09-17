@@ -5,7 +5,7 @@
  *      Author: Peter
  */
 
-#include "../StewardPlatform/StewardPlatform.h"
+#include "StewardPlatform.h"
 
 StewardPlatform::StewardPlatform() {
 
@@ -32,9 +32,6 @@ void StewardPlatform::Construct() {
 
 }
 
-void StewardPlatform::Execute(Command cmd) {
-}
-
 void StewardPlatform::TouchPanelTask(const void* argument) {
 	PlatformTouchPanel* touchPanel;
 
@@ -56,12 +53,13 @@ void StewardPlatform::RxTask(const void* argument) {
 	communicationCenter->RxTask(NULL);
 }
 
-void StewardPlatform::UARTRxCpltCallback(UART_HandleTypeDef* huart) {
+void StewardPlatform::UART_RxCpltCallback(UART_HandleTypeDef* huart) {
 	CommunicationCenter.UARTRxCpltCallback(huart);
 }
 
-void StewardPlatform::UARTTxCpltCallback(UART_HandleTypeDef* huart) {
+void StewardPlatform::UART_TxCpltCallback(UART_HandleTypeDef* huart) {
 	CommunicationCenter.UARTTxCpltCallback(huart);
 }
 
-
+void StewardPlatform::Execute(Command cmd) {
+}
