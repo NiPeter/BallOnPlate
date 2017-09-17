@@ -13,13 +13,22 @@
 
 // http://controlsystemslab.com/discrete-time-pid-controller-implementation/
 
+typedef struct {
+	double Kp;
+	double Ki;
+	double Kd;
+	double N;
+} pidSettings;
+
 /*
  *
  */
 class DiscreteTimePID : public PID{
 
 public:
-	DiscreteTimePID(double kp, double ki, double kd, double ts,double n,
+	DiscreteTimePID(double kp, double ki, double kd, double n, double ts,
+			IPerceptible* sensor, IControlable* actuator);
+	DiscreteTimePID(pidSettings* settings,double ts,
 			IPerceptible* sensor, IControlable* actuator);
 
 	void Process();
@@ -29,6 +38,7 @@ public:
 	void Reset();
 
 	void Tune(double kp, double ki, double kd, double n);
+	void Tune(pidSettings* settings);
 
 	void SetDeadband( double deadband){
 		if(deadband<0) deadband = -deadband;
@@ -68,8 +78,10 @@ private:
 	double Max, Min;
 	double Deadband;
 
-	bool Working;	// True if working
+	volatile bool Working;	// True if working
 
+	void Construct(double kp, double ki, double kd, double n, double ts,
+			IPerceptible* sensor, IControlable* actuator);
 
 };
 

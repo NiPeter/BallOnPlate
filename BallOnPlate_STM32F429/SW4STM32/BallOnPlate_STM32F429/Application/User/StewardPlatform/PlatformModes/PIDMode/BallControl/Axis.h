@@ -38,7 +38,9 @@ public:
 
 	XAxis( TouchPanel4W &panel) : Axis(panel) {};
 	virtual ~XAxis(){};
-	double Get() { return (double)Panel.GetX(); };
+	double Get() {
+		return (double)Panel.GetX();
+	};
 };
 /********************************************************/
 
@@ -52,7 +54,9 @@ public:
 
 	YAxis( TouchPanel4W &panel) : Axis(panel) {};
 	virtual ~YAxis(){};
-	double Get() { return (double)Panel.GetY(); };
+	double Get() {
+		return (double)Panel.GetY();
+	};
 };
 /********************************************************/
 

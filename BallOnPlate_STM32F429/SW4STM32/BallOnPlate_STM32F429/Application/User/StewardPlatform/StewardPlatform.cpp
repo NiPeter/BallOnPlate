@@ -11,10 +11,16 @@ StewardPlatform::StewardPlatform() {
 
 	this->Construct();
 
+	Mode = new PIDMode(this,10);
+
 }
 
 StewardPlatform::~StewardPlatform() {
+	delete Mode;
 
+	osThreadTerminate(rxTaskHandle);
+	osThreadTerminate(txTaskHandle);
+	osThreadTerminate(touchPanelTaskHandle);
 }
 
 void StewardPlatform::Construct() {
@@ -27,7 +33,7 @@ void StewardPlatform::Construct() {
 	txTaskHandle = osThreadCreate(osThread(StewardPlatformTxTask), &CommunicationCenter);
 
 	/* definition and creation of touchPanelTask */
-	osThreadDef(StewardPlatformTouchPanelTask, TouchPanelTask, osPriorityAboveNormal, 0, 128);
+	osThreadDef(StewardPlatformTouchPanelTask, TouchPanelTask, osPriorityAboveNormal, 0, 256);
 	touchPanelTaskHandle = osThreadCreate(osThread(StewardPlatformTouchPanelTask), &TouchPanel);
 
 }

@@ -40,7 +40,9 @@ public:
 	RollDOF( IKController &controller ):DOF(controller){};
 
 	virtual ~RollDOF(){};
-	void Set( double value ) { Controller.Roll(value, Deg); };
+	void Set( double value ) {
+		Controller.Roll(value, Deg);
+	};
 };
 /********************************************************/
 
@@ -54,7 +56,9 @@ public:
 	PitchDOF( IKController &controller ):DOF(controller){};
 
 	virtual ~PitchDOF(){};
-	void Set( double value ) { Controller.Pitch(value,Deg); };
+	void Set( double value ) {
+		Controller.Pitch(value,Deg);
+	};
 };
 /********************************************************/
 

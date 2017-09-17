@@ -8,20 +8,16 @@
 #include "DiscreteTimePID.h"
 
 
-DiscreteTimePID::DiscreteTimePID(double kp, double ki, double kd, double ts,double n,
+DiscreteTimePID::DiscreteTimePID(double kp, double ki, double kd, double n, double ts,
 		IPerceptible* sensor, IControlable* actuator) {
-	Tune(kp,ki,kd,n);
-	SetLimits(100,-100);
-	SetDeadband(0);
-	Sensor = sensor;
-	Actuator = actuator;
-
-	if(ts <= 0) Ts = 0.01; //TODO dT <= 0 then EXCEPTON!
-	else Ts = ts;
-
-	Stop();
-	Reset();
+	this->Construct(kp,ki,kd,n,ts,sensor,actuator);
 }
+
+DiscreteTimePID::DiscreteTimePID(pidSettings* settings, double ts,
+		IPerceptible* sensor, IControlable* actuator) {
+	this->Construct(settings->Kp,settings->Ki,settings->Kd,settings->N,ts,sensor,actuator);
+}
+
 
 void DiscreteTimePID::Process() {
 	if( Working == false ) return;
@@ -79,3 +75,27 @@ void DiscreteTimePID::Tune(double kp, double ki, double kd, double n) {
 	ke2 = b2/a0;
 
 }
+
+void DiscreteTimePID::Tune(pidSettings* settings) {
+	Tune(settings->Kp,settings->Ki,settings->Kd,settings->N);
+}
+
+
+void DiscreteTimePID::Construct(double kp, double ki, double kd, double n, double ts,
+		IPerceptible* sensor, IControlable* actuator) {
+
+	if(ts <= 0) Ts = 0.01; //TODO dT <= 0 then EXCEPTON!
+	else Ts = ts;
+
+	Tune(kp,ki,kd,n);
+
+	SetLimits(100,-100);
+	SetDeadband(0);
+
+	Sensor = sensor;
+	Actuator = actuator;
+
+	Stop();
+	Reset();
+}
+

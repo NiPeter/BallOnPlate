@@ -45,7 +45,9 @@ public:
 	}
 
 private:
+
 	TickType_t xSamplingInterval;
+
 	void Construct();
 };
 

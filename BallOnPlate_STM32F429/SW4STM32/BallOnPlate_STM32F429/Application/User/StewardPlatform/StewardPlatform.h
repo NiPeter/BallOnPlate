@@ -8,10 +8,14 @@
 #ifndef STEWARDPLATFORM_H_
 #define STEWARDPLATFORM_H_
 
-#include "../StewardPlatform/PlatformCommunicator/PlatformCommunicator.h"
-#include "../StewardPlatform/PlatformControlSystem/PlatformControlSystem.h"
-#include "../StewardPlatform/PlatformTouchPanel/PlatformTouchPanel.h"
+#include "FreeRTOS.h"
+#include "task.h"
+#include "cmsis_os.h"
 
+#include "PlatformCommunicator/PlatformCommunicator.h"
+#include "PlatformControlSystem/PlatformControlSystem.h"
+#include "PlatformTouchPanel/PlatformTouchPanel.h"
+#include "PlatformModes/PIDMode/PIDMode.h"
 
 /**
  *
@@ -37,7 +41,7 @@ public:
 	PlatformTouchPanel			TouchPanel;
 	PlatformCommunicator		CommunicationCenter;
 
-	//IMode&
+	PlatformMode*				Mode;
 
 	osThreadId rxTaskHandle;
 	osThreadId txTaskHandle;
