@@ -22,6 +22,12 @@
  */
 class PIDMode: public PlatformMode {
 
+	typedef enum{
+		normal,
+		setSetpoint,
+		setParameter,
+	}State_e;
+
 public:
 
 	~PIDMode();
@@ -33,15 +39,11 @@ public:
 
 	void Execute(Command cmd);
 
-	static void PIDModeTask(void const * argument);
-
 	TickType_t GetSamplingInterval() const {
 		return xSamplingInterval;
 	}
 
-//	void SetSamplingInterval(TickType_t samplingInterval) {
-//		xSamplingInterval = samplingInterval;
-//	}
+	static void PIDModeTask(void const * argument);
 
 private:
 
@@ -58,7 +60,27 @@ private:
 	DiscreteTimePID* XPid;
 	DiscreteTimePID* YPid;
 
+
+	struct{
+		State_e 			State;
+		DiscreteTimePID*	selectedPid;
+	}CommunicationState;
+
+
+	void ExecuteNormalState(Command cmd);
+	void ExecuteSetSetpointState(Command cmd);
+	void ExecuteSetParamState(Command cmd);
+
+	bool isSetpointCommandType(CmdType_e cmdType){
+		return isCommandTypeInRange(cmdType,setSetpointX,setSetpointY);
+	}
+
+	bool isSetParameterCommandType(CmdType_e cmdType){
+		return isCommandTypeInRange(cmdType,setPidSamplingInterval,setPidDeadband);
+	}
+
 	inline void Construct();
+
 };
 
 #endif /* PIDMODE_H_ */

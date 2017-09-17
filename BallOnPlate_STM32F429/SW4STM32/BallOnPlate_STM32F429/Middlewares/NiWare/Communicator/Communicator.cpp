@@ -87,7 +87,7 @@ Command Communicator::receiveCmd(bool *cmdReceived)
 	if(index==CP_MSG_SIZE) index = 0;
 
 	if(cmdReceived != NULL)	*cmdReceived = false;
-	return Command(Fail);
+	return Command(fail);
 }
 /********************************************************/
 
@@ -177,20 +177,20 @@ CmdType_e Communicator::cmdTypeFromMsg(const char* msg){
 float Communicator::paramFromMsg(const char* msg){
 	const char * token = msg;
 
-	token += strcspn(msg, "="); // Szukaj znaku "=" i przesuñ tam token
+	token += strcspn(msg, "="); // Szukaj znaku "=" i przesuï¿½ tam token
 
-	if (*token != '=') return 0; // Brak "=" w wiadomoœci
+	if (*token != '=') return 0; // Brak "=" w wiadomoï¿½ci
 
 	if (*(++token) == '\0') return 0; // Jest "=" ale nic za nim
 
-	int param_int = atoi(token); // pobierz wartoœæ ca³kowit¹ parametru
+	int param_int = atoi(token); // pobierz wartoï¿½ï¿½ caï¿½kowitï¿½ parametru
 
-	token += strcspn(token, "."); // Szukaj kropki i  przesuñ na ni¹ wskaŸnik
-	if (*token != '\0') {	// Je¿eli wskaŸnik NIE wskazuje koniec stringa to szukamy wartoœci u³amkowej
+	token += strcspn(token, "."); // Szukaj kropki i  przesuï¿½ na niï¿½ wskaï¿½nik
+	if (*token != '\0') {	// Jeï¿½eli wskaï¿½nik NIE wskazuje koniec stringa to szukamy wartoï¿½ci uï¿½amkowej
 		int param_frac;
 
-		token++;	// Przesuñ wskaŸnik na wartoœæ u³amkow¹ i...
-		param_frac = atoi(token); // pobierz wartoœæ u³amkow¹ parametru
+		token++;	// Przesuï¿½ wskaï¿½nik na wartoï¿½ï¿½ uï¿½amkowï¿½ i...
+		param_frac = atoi(token); // pobierz wartoï¿½ï¿½ uï¿½amkowï¿½ parametru
 
 		unsigned int nZeros = 0;
 		while (*token == '0') {
@@ -198,10 +198,10 @@ float Communicator::paramFromMsg(const char* msg){
 			nZeros++;
 		}
 
-		return floatFrom2Ints(param_int, param_frac,nZeros);	// Z³ó¿ dwa inty w floata
+		return floatFrom2Ints(param_int, param_frac,nZeros);	// Zï¿½ï¿½ dwa inty w floata
 	}
 
-	return (float)param_int; // Je¿eli nie ma wartoœci po . to parametr jest ca³kowity, zapisz go
+	return (float)param_int; // Jeï¿½eli nie ma wartoï¿½ci po . to parametr jest caï¿½kowity, zapisz go
 }
 /********************************************************/
 

@@ -89,7 +89,7 @@ void DiscreteTimePID::Construct(double kp, double ki, double kd, double n, doubl
 
 	Tune(kp,ki,kd,n);
 
-	SetOutputLimits(100,-100);
+	SetOutputLimits(12,-12);
 	SetDeadband(0);
 
 	Sensor = sensor;

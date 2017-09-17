@@ -18,6 +18,7 @@ StewardPlatform::StewardPlatform() {
 	this->Construct();
 
 	Mode = new PIDMode(this,10);
+	CommunicationCenter.Bluetooth.begin();
 
 }
 /********************************************************/
@@ -33,6 +34,27 @@ StewardPlatform::~StewardPlatform() {
 	osThreadTerminate(rxTaskHandle);
 	osThreadTerminate(txTaskHandle);
 	osThreadTerminate(touchPanelTaskHandle);
+}
+
+
+
+/**
+ *
+ * @param modeType
+ */
+void StewardPlatform::SetMode(ModeType_e modeType) {
+	delete Mode;
+
+	switch(modeType){
+
+	case pidMode:
+		Mode = new PIDMode(this);
+		break;
+
+	default:
+		break;
+	}
+
 }
 /********************************************************/
 
@@ -53,6 +75,10 @@ void StewardPlatform::Construct() {
 	/* definition and creation of touchPanelTask */
 	osThreadDef(StewardPlatformTouchPanelTask, TouchPanelTask, osPriorityAboveNormal, 0, 256);
 	touchPanelTaskHandle = osThreadCreate(osThread(StewardPlatformTouchPanelTask), &TouchPanel);
+
+	/* definition and creation of communicationTask */
+	osThreadDef(StewardPlatformCommunicationTask, CommunicationTask, osPriorityBelowNormal, 0, 512);
+	touchPanelTaskHandle = osThreadCreate(osThread(StewardPlatformCommunicationTask), this);
 
 }
 /********************************************************/
@@ -103,6 +129,32 @@ void StewardPlatform::RxTask(const void* argument) {
 
 /**
  *
+ * @param argument
+ */
+void StewardPlatform::CommunicationTask(const void* argument) {
+	StewardPlatform* stewardPlatform = (StewardPlatform*)argument;
+	PlatformCommunicator* communicationCenter = &stewardPlatform->CommunicationCenter;
+
+
+	while(true){
+		bool isCommand = false;
+
+		Command cmd = communicationCenter->receiveCmd(&isCommand);
+		if(isCommand){
+			communicationCenter->sendCmd(cmd);
+			stewardPlatform->Execute(cmd);
+		}else{
+			osDelay(10);
+		}
+
+	}
+}
+/********************************************************/
+
+
+
+/**
+ *
  * @param huart
  */
 void StewardPlatform::UART_RxCpltCallback(UART_HandleTypeDef* huart) {
@@ -132,17 +184,40 @@ void StewardPlatform::Execute(Command cmd) {
 	float		cmdParam = cmd.getParam();
 
 	switch(cmdType){
+	case empty:
+		CommunicationCenter.SendEmpty();
+		break;
 
 	case fail:
 		break;
+
 	case ok:
 		break;
 
+	case startMode:
+		if(Mode) Mode->Start();
+			else CommunicationCenter.SendFail();
+		break;
 
+	case stopMode:
+		if(Mode) Mode->Stop();
+			else CommunicationCenter.SendFail();
+		break;
 
+	case resetMode:
+		if(Mode) Mode->Reset();
+			else CommunicationCenter.SendFail();
+		break;
+
+	case setMode:
+		SetMode((ModeType_e)cmdParam);
+		break;
 
 	default:
+		if(Mode) Mode->Execute(cmd);
+			else CommunicationCenter.SendFail();
 		break;
+
 	}
 }
 /********************************************************/

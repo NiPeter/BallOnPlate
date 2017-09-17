@@ -13,10 +13,11 @@ typedef enum {
 /**
  * General <0,249>
  */
-	fail = 0,
+	empty =0,
+	fail,
 	ok,
 	submit,
-	abort,
+	cancel,
 	startMode,
 	stopMode,
 	resetMode,
@@ -57,7 +58,10 @@ typedef enum {
 /**
  * Getter <750,999>
  */
-	getMode = 750,
+	isPanelTouched = 750,
+	getPanelX,
+	getPanelY,
+	getMode,
 	isModeWorking,
 	getSetpointX,
 	getSetpointY,
@@ -85,9 +89,24 @@ typedef enum {
 
 } CmdType_e;
 
-typedef enum {
 
-};
+
+typedef enum {
+	demo = 0,
+	pidMode,
+	ikMode,
+	servoMode,
+} ModeType_e;
+
+typedef enum {
+	selectPidX,
+	selectPidY,
+} PidSelect_e;
+
+
+
+bool isCommandTypeInRange(CmdType_e cmdType, CmdType_e lower, CmdType_e upper);
+
 
 
 #endif /* APPLICATION_USER_COMMUNICATOR_CMDTYPE_H_ */

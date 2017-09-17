@@ -41,9 +41,13 @@ public:
 	virtual void Stop() = 0;
 	virtual void Reset() = 0;
 
-	void SetInput(double setpoint) {
+	void SetSetpoint(double setpoint) {
 		Setpoint = setpoint;
 	};
+
+	double GetSetpoint() const {
+		return Setpoint;
+	}
 
 	double GetOutput() const {
 		return ControlVariable;
@@ -73,8 +77,8 @@ protected:
 	double Ki;
 	double Kd;
 
-	double Setpoint;				// r(t)
-	double ControlVariable;		// u(t)
+	volatile double Setpoint;				// r(t)
+	volatile double ControlVariable;		// u(t)
 
 	IPerceptible *Sensor;		//
 	IControlable *Actuator;		// Plant / Process

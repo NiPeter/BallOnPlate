@@ -21,8 +21,24 @@
 class PlatformCommunicator : public Communicator{
 public:
 	HC05 		Bluetooth;
+
 	PlatformCommunicator();
 	virtual ~PlatformCommunicator();
+
+	void SendEmpty(){
+		Command cmd = Command(empty);
+		sendCmd(cmd);
+	}
+	void SendFail(){
+		Command cmd = Command(fail);
+		sendCmd(cmd);
+	}
+	void SendOk(){
+		Command cmd = Command(ok);
+		sendCmd(cmd);
+	}
+
+
 
 	void UARTRxCpltCallback(UART_HandleTypeDef *huart);
 	void UARTTxCpltCallback(UART_HandleTypeDef *huart);

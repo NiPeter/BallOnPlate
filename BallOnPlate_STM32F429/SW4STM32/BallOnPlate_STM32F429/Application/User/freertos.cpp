@@ -119,8 +119,6 @@ void StartDefaultTask(void const * argument)
   /* USER CODE BEGIN StartDefaultTask */
 	StartProcedure();
 
-	stewardPlatform->CommunicationCenter.Bluetooth.begin();
-	stewardPlatform->Mode->Start();
 
 
 	/* Infinite loop */
@@ -128,7 +126,7 @@ void StartDefaultTask(void const * argument)
 	{
 
 
-		osDelay(10);
+		osDelay(100);
 	}
   /* USER CODE END StartDefaultTask */
 }
