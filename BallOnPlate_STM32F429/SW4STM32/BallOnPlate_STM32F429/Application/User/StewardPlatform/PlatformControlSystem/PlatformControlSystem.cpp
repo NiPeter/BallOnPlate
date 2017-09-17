@@ -5,7 +5,7 @@
  *      Author: Peter
  */
 
-#include "../PlatformControlSystem/PlatformControlSystem.h"
+#include "../../StewardPlatform/PlatformControlSystem/PlatformControlSystem.h"
 
 PlatformControlSystem::PlatformControlSystem(){
 	Construct();

@@ -9,9 +9,9 @@
 #include "task.h"
 #include "cmsis_os.h"
 
-#include "../Master/Master.h"
+#include "../StewardPlatform/StewardPlatform.h"
 
-extern Master* master;
+extern StewardPlatform* master;
 
 
 

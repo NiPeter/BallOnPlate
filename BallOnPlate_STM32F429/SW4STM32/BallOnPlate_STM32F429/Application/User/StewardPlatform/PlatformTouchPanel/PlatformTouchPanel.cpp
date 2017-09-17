@@ -5,7 +5,7 @@
  *      Author: Peter
  */
 
-#include "PlatformTouchPanel.h"
+#include "../../StewardPlatform/PlatformTouchPanel/PlatformTouchPanel.h"
 
 PlatformTouchPanel::PlatformTouchPanel(	TickType_t period)
 	:TouchPanel4W(	new AnalogPin(&hadc3,PF6_GPIO_Port,PF6_Pin), 	// XAnalog

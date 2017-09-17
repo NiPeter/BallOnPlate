@@ -5,7 +5,7 @@
  *      Author: Peter
  */
 
-#include "PlatformCommunicator.h"
+#include "../../StewardPlatform/PlatformCommunicator/PlatformCommunicator.h"
 
 PlatformCommunicator::PlatformCommunicator():Bluetooth(&huart1){
 

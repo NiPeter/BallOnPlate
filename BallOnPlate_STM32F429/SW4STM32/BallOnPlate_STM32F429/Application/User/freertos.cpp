@@ -53,10 +53,11 @@
 
 /* USER CODE BEGIN Includes */
 
-#include "Master/Master.h"
-#include "Master/BallControl/Axis.h"
-#include "Master/BallControl/DOF.h"
 #include <PID/DiscreteTimePID/DiscreteTimePID.h>
+
+#include "StewardPlatform/BallControl/Axis.h"
+#include "StewardPlatform/BallControl/DOF.h"
+#include "StewardPlatform/StewardPlatform.h"
 
 /* USER CODE END Includes */
 
@@ -70,7 +71,7 @@ osThreadId txTaskHandle;
 //osSemaphoreId rxSemaphoreHandle;
 
 /* USER CODE BEGIN Variables */
-Master* master;
+StewardPlatform* master;
 DiscreteTimePID* XPid;
 DiscreteTimePID* YPid;
 
@@ -123,12 +124,12 @@ void StartProcedure(void);
 
 void MX_FREERTOS_Init(void) {
 	/* USER CODE BEGIN Init */
-	master = new Master;
+	master = new StewardPlatform;
 
 
 
-	XPos = new XAxis(master->Panel);
-	YPos = new YAxis(master->Panel);
+	XPos = new XAxis(master->TouchPanel);
+	YPos = new YAxis(master->TouchPanel);
 	Roll = new RollDOF(master->Platform.Controller);
 	Pitch= new PitchDOF(master->Platform.Controller);
 
@@ -168,17 +169,17 @@ void MX_FREERTOS_Init(void) {
 	osThreadDef(pidTask, StartPIDTask, osPriorityHigh, 0, 512);
 	pidTaskHandle = osThreadCreate(osThread(pidTask), NULL);
 
-	/* definition and creation of touchPanelTask */
-	osThreadDef(touchPanelTask, StartTouchPanelTask, osPriorityAboveNormal, 0, 256);
-	touchPanelTaskHandle = osThreadCreate(osThread(touchPanelTask), NULL);
+//	/* definition and creation of touchPanelTask */
+//	osThreadDef(touchPanelTask, StartTouchPanelTask, osPriorityAboveNormal, 0, 256);
+//	touchPanelTaskHandle = osThreadCreate(osThread(touchPanelTask), NULL);
 
-	/* definition and creation of rxTask */
-	osThreadDef(rxTask, StartRxTask, osPriorityRealtime, 0, 128);
-	rxTaskHandle = osThreadCreate(osThread(rxTask), NULL);
-
-	/* definition and creation of txTask */
-	osThreadDef(txTask, StartTxTask, osPriorityRealtime, 0, 128);
-	txTaskHandle = osThreadCreate(osThread(txTask), NULL);
+//	/* definition and creation of rxTask */
+//	osThreadDef(rxTask, StartRxTask, osPriorityRealtime, 0, 128);
+//	rxTaskHandle = osThreadCreate(osThread(rxTask), NULL);
+//
+//	/* definition and creation of txTask */
+//	osThreadDef(txTask, StartTxTask, osPriorityRealtime, 0, 128);
+//	txTaskHandle = osThreadCreate(osThread(txTask), NULL);
 
 	/* USER CODE BEGIN RTOS_THREADS */
 	/* add threads, ... */
@@ -196,7 +197,7 @@ void StartDefaultTask(void const * argument)
 
 	/* USER CODE BEGIN StartDefaultTask */
 	int inc = 0;
-	master->Communicator.Bluetooth.begin();
+	master->CommunicationCenter.Bluetooth.begin();
 
 	StartProcedure();
 	bool stopbuff = true;
@@ -205,10 +206,10 @@ void StartDefaultTask(void const * argument)
 	for(;;)
 	{
 		prev_td = td;
-		td = master->Panel.IsTouched();
+		td = master->TouchPanel.IsTouched();
 
 		bool cmdFlag = false;
-		Command cmd = master->Communicator.receiveCmd(&cmdFlag);
+		Command cmd = master->CommunicationCenter.receiveCmd(&cmdFlag);
 
 
 
@@ -252,8 +253,8 @@ void StartDefaultTask(void const * argument)
 		}
 
 		if(td){
-			X = master->Panel.GetX();
-			Y = master->Panel.GetY();
+			X = master->TouchPanel.GetX();
+			Y = master->TouchPanel.GetY();
 
 			YPid->Start();
 			XPid->Start();
@@ -279,10 +280,10 @@ void StartDefaultTask(void const * argument)
 		inc++;
 		if( inc == 50){
 			cmd = Command(pidXError,errorX);
-			master->Communicator.sendCmd(cmd);
+			master->CommunicationCenter.sendCmd(cmd);
 
 			cmd = Command(pidYError,errorY);
-			master->Communicator.sendCmd(cmd);
+			master->CommunicationCenter.sendCmd(cmd);
 			inc=0;
 		}
 
@@ -293,6 +294,27 @@ void StartDefaultTask(void const * argument)
 }
 
 /* USER CODE BEGIN Application */
+
+/**
+ *
+ * @param huart
+ */
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
+
+	master->UARTTxCpltCallback(huart);
+}
+/********************************************************/
+
+
+
+/*
+ *
+ */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
+	master->UARTRxCpltCallback(huart);
+
+}
+/********************************************************/
 
 
 
