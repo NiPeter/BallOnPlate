@@ -66,7 +66,7 @@ osThreadId defaultTaskHandle;
 osThreadId pidTaskHandle;
 
 /* USER CODE BEGIN Variables */
-StewardPlatform* master;
+StewardPlatform* stewardPlatform;
 DiscreteTimePID* XPid;
 DiscreteTimePID* YPid;
 
@@ -116,14 +116,14 @@ void StartProcedure(void);
 
 void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN Init */
-	master = new StewardPlatform;
+	stewardPlatform = new StewardPlatform;
 
 
 
-	XPos = new XAxis(master->TouchPanel);
-	YPos = new YAxis(master->TouchPanel);
-	Roll = new RollDOF(master->Platform.Controller);
-	Pitch= new PitchDOF(master->Platform.Controller);
+	XPos = new XAxis(stewardPlatform->TouchPanel);
+	YPos = new YAxis(stewardPlatform->TouchPanel);
+	Roll = new RollDOF(stewardPlatform->Platform.Controller);
+	Pitch= new PitchDOF(stewardPlatform->Platform.Controller);
 
 
 	XPid = new DiscreteTimePID(kpX,kiX,kdX,dt,nX,XPos,Pitch);
@@ -168,7 +168,7 @@ void StartDefaultTask(void const * argument)
 
   /* USER CODE BEGIN StartDefaultTask */
 	int inc = 0;
-	master->CommunicationCenter.Bluetooth.begin();
+	stewardPlatform->CommunicationCenter.Bluetooth.begin();
 
 	StartProcedure();
 	bool stopbuff = true;
@@ -177,10 +177,10 @@ void StartDefaultTask(void const * argument)
 	for(;;)
 	{
 		prev_td = td;
-		td = master->TouchPanel.IsTouched();
+		td = stewardPlatform->TouchPanel.IsTouched();
 
 		bool cmdFlag = false;
-		Command cmd = master->CommunicationCenter.receiveCmd(&cmdFlag);
+		Command cmd = stewardPlatform->CommunicationCenter.receiveCmd(&cmdFlag);
 
 
 
@@ -224,8 +224,8 @@ void StartDefaultTask(void const * argument)
 		}
 
 		if(td){
-			X = master->TouchPanel.GetX();
-			Y = master->TouchPanel.GetY();
+			X = stewardPlatform->TouchPanel.GetX();
+			Y = stewardPlatform->TouchPanel.GetY();
 
 			YPid->Start();
 			XPid->Start();
@@ -251,10 +251,10 @@ void StartDefaultTask(void const * argument)
 		inc++;
 		if( inc == 50){
 			cmd = Command(pidXError,errorX);
-			master->CommunicationCenter.sendCmd(cmd);
+			stewardPlatform->CommunicationCenter.sendCmd(cmd);
 
 			cmd = Command(pidYError,errorY);
-			master->CommunicationCenter.sendCmd(cmd);
+			stewardPlatform->CommunicationCenter.sendCmd(cmd);
 			inc=0;
 		}
 
@@ -272,7 +272,7 @@ void StartDefaultTask(void const * argument)
  */
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
 
-	master->UART_TxCpltCallback(huart);
+	stewardPlatform->UART_TxCpltCallback(huart);
 }
 /********************************************************/
 
@@ -282,7 +282,7 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
  *
  */
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
-	master->UART_RxCpltCallback(huart);
+	stewardPlatform->UART_RxCpltCallback(huart);
 
 }
 /********************************************************/
@@ -290,21 +290,21 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 
 
 void StartProcedure(void){
-	master->Platform.Controller.Start();
+	stewardPlatform->Platform.Controller.Start();
 	double q[6] = {0,0,0,0,0,0};
-	master->Platform.Controller.Move(q);
+	stewardPlatform->Platform.Controller.Move(q);
 	osDelay(100);
 
 	q[2] = -0.01;
-	master->Platform.Controller.Move(q);
+	stewardPlatform->Platform.Controller.Move(q);
 	osDelay(300);
 
 	q[2] = 0;
-	master->Platform.Controller.Move(q);
+	stewardPlatform->Platform.Controller.Move(q);
 	osDelay(100);
 
 	q[2] = -0.002;
-	master->Platform.Controller.Move(q);
+	stewardPlatform->Platform.Controller.Move(q);
 	osDelay(100);
 
 }
