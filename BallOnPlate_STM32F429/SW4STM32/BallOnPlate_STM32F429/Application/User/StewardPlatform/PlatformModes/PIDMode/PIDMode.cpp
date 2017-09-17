@@ -14,6 +14,10 @@
  */
 PIDMode::~PIDMode() {
 
+	Stop();
+
+	osThreadTerminate(pidTaskHandle);
+
 	delete XPos;
 	delete YPos;
 	delete Roll;
@@ -21,8 +25,6 @@ PIDMode::~PIDMode() {
 
 	delete XPid;
 	delete YPid;
-
-	osThreadTerminate(pidTaskHandle);
 }
 /********************************************************/
 
@@ -59,6 +61,8 @@ void PIDMode::Start() {
  *
  */
 void PIDMode::Stop() {
+	XPid->Stop();
+	YPid->Stop();
 }
 /********************************************************/
 

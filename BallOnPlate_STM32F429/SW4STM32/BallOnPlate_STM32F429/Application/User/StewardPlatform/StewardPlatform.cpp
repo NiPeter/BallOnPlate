@@ -141,11 +141,14 @@ void StewardPlatform::CommunicationTask(const void* argument) {
 
 		Command cmd = communicationCenter->receiveCmd(&isCommand);
 		if(isCommand){
+
 			communicationCenter->sendCmd(cmd);
 			stewardPlatform->Execute(cmd);
-		}else{
-			osDelay(10);
+
+			cmd = Command(getFreeHeap,(float)xPortGetFreeHeapSize());
+			communicationCenter->sendCmd(cmd);
 		}
+		osDelay(10);
 
 	}
 }

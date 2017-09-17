@@ -83,6 +83,7 @@ typedef enum {
 	getIkRoll,
 	getIkPitch,
 	getIkYaw,
+	getFreeHeap,
 
 
 
