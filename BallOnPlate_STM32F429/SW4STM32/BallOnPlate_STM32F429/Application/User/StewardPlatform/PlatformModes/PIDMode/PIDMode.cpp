@@ -37,7 +37,7 @@ PIDMode::~PIDMode() {
  */
 PIDMode::PIDMode(StewardPlatform* master, TickType_t samplingInterval_ms)
 : xSamplingInterval(samplingInterval_ms){
-	Ready = false;
+
 
 	Master = master;
 	this->Construct();
@@ -51,11 +51,6 @@ PIDMode::PIDMode(StewardPlatform* master, TickType_t samplingInterval_ms)
  *
  */
 void PIDMode::Start() {
-	if(!Ready){
-		Command Cmd = Command(notReady);
-		Master->CommunicationCenter.SendCommand(Cmd);
-		return;
-	}
 	XPid->Start();
 	YPid->Start();
 }
@@ -67,11 +62,7 @@ void PIDMode::Start() {
  *
  */
 void PIDMode::Stop() {
-	if(!Ready){
-		Command Cmd = Command(notReady);
-		Master->CommunicationCenter.SendCommand(Cmd);
-		return;
-	}
+
 	XPid->Stop();
 	YPid->Stop();
 }
@@ -83,11 +74,7 @@ void PIDMode::Stop() {
  *
  */
 void PIDMode::Reset() {
-	if(!Ready){
-		Command Cmd = Command(notReady);
-		Master->CommunicationCenter.SendCommand(Cmd);
-		return;
-	}
+
 	XPid->Reset();
 	YPid->Reset();
 }
@@ -100,11 +87,6 @@ void PIDMode::Reset() {
  * @param cmd
  */
 void PIDMode::Execute(Command cmd) {
-	if(!Ready){
-		Command Cmd = Command(notReady);
-		Master->CommunicationCenter.SendCommand(Cmd);
-		return;
-	}
 
 	switch(CommunicationState.State){
 
@@ -125,7 +107,7 @@ void PIDMode::Execute(Command cmd) {
 /********************************************************/
 
 
-void PIDMode::ExecuteNormalState(Command cmd) {
+void PIDMode::ExecuteNormalState(Command& cmd) {
 	CmdType_e 	cmdType = cmd.getType();
 	float		cmdParam = cmd.getParam();
 
@@ -136,7 +118,6 @@ void PIDMode::ExecuteNormalState(Command cmd) {
 		break;
 
 	case selectPid:{
-
 		CommunicationState.State = setParameter;
 		PidSelect_e pid = (PidSelect_e)cmdParam;
 
@@ -163,7 +144,7 @@ void PIDMode::ExecuteNormalState(Command cmd) {
 	}
 }
 
-void PIDMode::ExecuteSetSetpointState(Command cmd) {
+void PIDMode::ExecuteSetSetpointState(Command& cmd) {
 	CmdType_e 	cmdType = cmd.getType();
 	float		cmdParam = cmd.getParam();
 
@@ -184,8 +165,15 @@ void PIDMode::ExecuteSetSetpointState(Command cmd) {
 
 		case submit:
 			// write setpoints and return normal state
-			XPid->SetSetpoint(23+setpointX);
-			YPid->SetSetpoint(19+setpointY);
+			XPid->SetSetpoint(setpointX);
+			YPid->SetSetpoint(setpointY);
+			CommunicationState.State = normal;
+			break;
+
+		case cancel:
+			// cancel unsubmitted changes
+			setpointX = XPid->GetSetpoint();
+			setpointY = YPid->GetSetpoint();
 			CommunicationState.State = normal;
 			break;
 
@@ -202,7 +190,7 @@ void PIDMode::ExecuteSetSetpointState(Command cmd) {
 
 }
 
-void PIDMode::ExecuteSetParamState(Command cmd) {
+void PIDMode::ExecuteSetParamState(Command& cmd) {
 }
 
 struct PIDMode_AQ{
@@ -218,18 +206,13 @@ struct PIDMode_AQ{
  */
 void PIDMode::PIDModeTask(const void* argument) {
 	TickType_t 	xLastWakeTime;
-	bool previousTouchDetect,touchDetect;
-	PIDMode*	Mode;
 
+	PIDMode*	Mode;
 	Mode = (PIDMode*) argument;
 
-//	osDelay(100);
-	Mode->Ready = true;
-
-	Mode->XPid->SetDeadband(0.3);
-	Mode->YPid->SetDeadband(0.3);
-
 	xLastWakeTime = xTaskGetTickCount();
+
+	bool previousTouchDetect,touchDetect;
 	while(true){
 
 		vTaskDelayUntil( &xLastWakeTime, Mode->GetSamplingInterval() );
@@ -273,9 +256,9 @@ void PIDMode::Construct() {
 	CommunicationState.State = normal;
 	CommunicationState.selectedPid = NULL;
 
-	XPidSettings.Kp = 0.058;
+	XPidSettings.Kp = 0.04;
 	XPidSettings.Ki = 0.02;
-	XPidSettings.Kd = 0.042;
+	XPidSettings.Kd = 0.035;
 	XPidSettings.N = 10;
 
 	YPidSettings.Kp = -XPidSettings.Kp;

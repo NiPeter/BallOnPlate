@@ -57,7 +57,6 @@ public:
 	osThreadId communicationTaskHandle;
 
 	void Construct();
-
 };
 
 #endif /* STEWARDPLATFORM_H_ */

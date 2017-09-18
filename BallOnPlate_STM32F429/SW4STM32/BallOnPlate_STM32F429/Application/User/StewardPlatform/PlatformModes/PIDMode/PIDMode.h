@@ -47,7 +47,6 @@ public:
 
 private:
 
-	bool Ready;
 	osThreadId pidTaskHandle;
 	TickType_t xSamplingInterval;
 
@@ -71,9 +70,9 @@ private:
 	}CommunicationState;
 
 
-	void ExecuteNormalState(Command cmd);
-	void ExecuteSetSetpointState(Command cmd);
-	void ExecuteSetParamState(Command cmd);
+	void ExecuteNormalState(Command& cmd);
+	void ExecuteSetSetpointState(Command& cmd);
+	void ExecuteSetParamState(Command& cmd);
 
 	bool isSetpointCommandType(CmdType_e cmdType){
 		return isCommandTypeInRange(cmdType,setSetpointX,setSetpointY);

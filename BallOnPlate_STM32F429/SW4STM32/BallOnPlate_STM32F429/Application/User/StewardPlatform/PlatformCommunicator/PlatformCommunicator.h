@@ -38,9 +38,6 @@ public:
 		SendCommand(cmd);
 	}
 
-	void SendCommand(Command cmd);
-
-
 	void UARTRxCpltCallback(UART_HandleTypeDef *huart);
 	void UARTTxCpltCallback(UART_HandleTypeDef *huart);
 

@@ -90,6 +90,53 @@ void StewardPlatform::Construct() {
 
 /**
  *
+ * @param cmd
+ */
+void StewardPlatform::Execute(Command cmd) {
+
+	switch(cmd.getType()){
+	case empty:
+		CommunicationCenter.SendEmpty();
+		break;
+
+	case fail:
+		break;
+
+	case ok:
+		break;
+
+	case startMode:
+		if(Mode) Mode->Start();
+			else CommunicationCenter.SendFail();
+		break;
+
+	case stopMode:
+		if(Mode) Mode->Stop();
+			else CommunicationCenter.SendFail();
+		break;
+
+	case resetMode:
+		if(Mode) Mode->Reset();
+			else CommunicationCenter.SendFail();
+		break;
+
+	case setMode:
+		SetMode((ModeType_e)cmd.getParam());
+		break;
+
+	default:
+		if(Mode) Mode->Execute(cmd);
+			else CommunicationCenter.SendFail();
+		break;
+
+	}
+}
+/********************************************************/
+
+
+
+/**
+ *
  * @param argument
  */
 void StewardPlatform::TouchPanelTask(const void* argument) {
@@ -136,19 +183,17 @@ void StewardPlatform::RxTask(const void* argument) {
  */
 void StewardPlatform::CommunicationTask(const void* argument) {
 	StewardPlatform* stewardPlatform = (StewardPlatform*)argument;
+	PlatformCommunicator* communicationCenter = &stewardPlatform->CommunicationCenter;
 
 
 	while(true){
 		bool isCommand = false;
 
-		Command cmd = stewardPlatform->CommunicationCenter.ReceiveCommmand(&isCommand);
+		Command cmd = communicationCenter->ReceiveCommmand(&isCommand);
 		if(isCommand){
 
-//			communicationCenter->sendCmd(cmd);
+			communicationCenter->SendCommand(cmd);
 			stewardPlatform->Execute(cmd);
-
-//			cmd = Command(getFreeHeap,(float)xPortGetFreeHeapSize());
-//			communicationCenter->sendCmd(cmd);
 		}else
 		osDelay(30);
 
@@ -175,54 +220,5 @@ void StewardPlatform::UART_RxCpltCallback(UART_HandleTypeDef* huart) {
  */
 void StewardPlatform::UART_TxCpltCallback(UART_HandleTypeDef* huart) {
 	CommunicationCenter.UARTTxCpltCallback(huart);
-}
-/********************************************************/
-
-
-
-/**
- *
- * @param cmd
- */
-void StewardPlatform::Execute(Command cmd) {
-	CmdType_e 	cmdType = cmd.getType();
-	float		cmdParam = cmd.getParam();
-
-	switch(cmdType){
-	case empty:
-		CommunicationCenter.SendEmpty();
-		break;
-
-	case fail:
-		break;
-
-	case ok:
-		break;
-
-	case startMode:
-		if(Mode) Mode->Start();
-			else CommunicationCenter.SendFail();
-		break;
-
-	case stopMode:
-		if(Mode) Mode->Stop();
-			else CommunicationCenter.SendFail();
-		break;
-
-	case resetMode:
-		if(Mode) Mode->Reset();
-			else CommunicationCenter.SendFail();
-		break;
-
-	case setMode:
-		SetMode((ModeType_e)cmdParam);
-		break;
-
-	default:
-		if(Mode) Mode->Execute(cmd);
-			else CommunicationCenter.SendFail();
-		break;
-
-	}
 }
 /********************************************************/
