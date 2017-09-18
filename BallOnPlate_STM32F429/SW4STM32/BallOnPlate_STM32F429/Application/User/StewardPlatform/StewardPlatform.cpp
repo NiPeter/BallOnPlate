@@ -18,6 +18,7 @@ StewardPlatform::StewardPlatform() {
 	this->Construct();
 
 	Mode = new PIDMode(this,10);
+	Mode->Start();
 	CommunicationCenter.Bluetooth.begin();
 
 }
@@ -78,7 +79,7 @@ void StewardPlatform::Construct() {
 
 	/* definition and creation of communicationTask */
 	osThreadDef(StewardPlatformCommunicationTask, CommunicationTask, osPriorityBelowNormal, 0, 512);
-	touchPanelTaskHandle = osThreadCreate(osThread(StewardPlatformCommunicationTask), this);
+	communicationTaskHandle = osThreadCreate(osThread(StewardPlatformCommunicationTask), this);
 
 }
 /********************************************************/

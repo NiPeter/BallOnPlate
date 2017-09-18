@@ -50,6 +50,7 @@ PIDMode::PIDMode(StewardPlatform* master, TickType_t samplingInterval_ms)
  *
  */
 void PIDMode::Start() {
+	Reset();
 	XPid->Start();
 	YPid->Start();
 }
@@ -72,6 +73,8 @@ void PIDMode::Stop() {
  *
  */
 void PIDMode::Reset() {
+	XPid->Reset();
+	YPid->Reset();
 }
 /********************************************************/
 
@@ -145,39 +148,33 @@ void PIDMode::ExecuteSetSetpointState(Command cmd) {
 	float		cmdParam = cmd.getParam();
 
 	// At first, remember setpoints
-//	static float setpointX = XPid->GetSetpoint();
-//	static float setpointY = YPid->GetSetpoint();
-		static float setpointX = 0;
-		static float setpointY = 0;
+	static float setpointX = XPid->GetSetpoint();
+	static float setpointY = YPid->GetSetpoint();
+//		static float setpointX = 0;
+//		static float setpointY = 0;
 
 	switch (cmdType) {
 		case setSetpointX:
 			// store setpoint x
 			setpointX = (double)cmdParam;
-			XPid->SetSetpoint(23+setpointX);
-
-//			Master->CommunicationCenter.sendCmd(cmd);
 			break;
 
 		case setSetpointY:
 			// store setpoint y
 			setpointY = (double)cmdParam;
-			YPid->SetSetpoint(19+setpointY);
-//			Master->CommunicationCenter.sendCmd(cmd);
 			break;
 
 		case submit:
 			// write setpoints and return normal state
-
+			XPid->SetSetpoint(23+setpointX);
+			YPid->SetSetpoint(19+setpointY);
 			CommunicationState.State = normal;
-//			Master->CommunicationCenter.sendCmd(cmd);
-
 			break;
 
 		default:
 			// Ups forbidden command, cancel unsubmitted changes
-//			setpointX = XPid->GetSetpoint();
-//			setpointY = YPid->GetSetpoint();
+			setpointX = XPid->GetSetpoint();
+			setpointY = YPid->GetSetpoint();
 			CommunicationState.State = normal;
 
 			Master->CommunicationCenter.SendFail();
@@ -214,10 +211,8 @@ void PIDMode::PIDModeTask(const void* argument) {
 		touchDetect = pidMode->Master->TouchPanel.IsTouched();
 
 		if( ((previousTouchDetect == true) && (touchDetect == false))  ){
-//			pidMode->XPid->Reset();
-//			pidMode->XPid->Reset();
-			pidMode->XPid->Stop();
-			pidMode->XPid->Stop();
+			pidMode->XPid->Reset();
+			pidMode->YPid->Reset();
 
 			pidMode->Roll->Set(0);
 			pidMode->Pitch->Set(0);
@@ -225,8 +220,6 @@ void PIDMode::PIDModeTask(const void* argument) {
 		}
 
 		if(touchDetect){
-			pidMode->YPid->Start();
-			pidMode->XPid->Start();
 			pidMode->XPid->Process();
 			pidMode->YPid->Process();
 		}
@@ -245,10 +238,10 @@ inline void PIDMode::Construct() {
 	CommunicationState.State = normal;
 	CommunicationState.selectedPid = NULL;
 
-	XPidSettings.Kp = 0.04;
-	XPidSettings.Ki = 0.00;
+	XPidSettings.Kp = 0.045;
+	XPidSettings.Ki = 0.02;
 	XPidSettings.Kd = 0.01;
-	XPidSettings.N = 10;
+	XPidSettings.N = 8;
 	YPidSettings = XPidSettings;
 
 
