@@ -27,8 +27,8 @@ public:
 	Communicator(){SerialPort = NULL;};
 	~Communicator();
 
-	Command receiveCmd(bool *cmdReceived = NULL);
-	void sendCmd(Command cmd);
+	Command ReceiveCommmand(bool *cmdReceived = NULL);
+	void SendCommand(Command cmd);
 
 private:
 	Command unpackMsg(const char* msg);

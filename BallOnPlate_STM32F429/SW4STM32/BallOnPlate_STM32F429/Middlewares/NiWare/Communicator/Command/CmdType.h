@@ -9,21 +9,106 @@
 #define APPLICATION_USER_COMMUNICATOR_CMDTYPE_H_
 
 typedef enum {
-	Fail = 0,
-	Ok,
-	Stop,
-	Start,
-	Set,
-	Get,
-	SetX,
-	SetY,
-	GetX,
-	GetY,
-	setTargetX = 31,
-	setTargetY = 32,
-	pidXError = 33,
-	pidYError = 34,
+
+/**
+ * General <0,249>
+ */
+	empty =0,
+	fail,
+	ok,
+	submit,
+	cancel,
+	startMode,
+	stopMode,
+	resetMode,
+	notReady,
+
+
+
+/**
+ * Selector <250,499>
+ */
+	moveTo = 250,
+	selectPid,
+
+
+
+/**
+ * Setter <500,749>
+ */
+	setMode = 500,
+	setSetpointX,
+	setSetpointY,
+	setPidSamplingInterval,
+	setKp,
+	setKi,
+	setKd,
+	setN,
+	setPidUpperLimit,
+	setPidLowerLimit,
+	setPidDeadband,
+	setIkX,
+	setIkY,
+	setIkZ,
+	setIkRoll,
+	setIkPitch,
+	setIkYaw,
+
+
+
+/**
+ * Getter <750,999>
+ */
+	isPanelTouched = 750,
+	getPanelX,
+	getPanelY,
+	getMode,
+	isModeWorking,
+	getSetpointX,
+	getSetpointY,
+	getErrorX,
+	getErrorY,
+	getPidSamplingInterval,
+	getPid,
+	getKp,
+	getKi,
+	getKd,
+	getN,
+	getPidUpperLimit,
+	getPidLowerLimit,
+	getPidDeadband,
+	isPidWorking,
+	getIkX,
+	getIkY,
+	getIkZ,
+	getIkRoll,
+	getIkPitch,
+	getIkYaw,
+	getFreeHeap,
+
+
+
+
 } CmdType_e;
+
+
+
+typedef enum {
+	demo = 0,
+	pidMode,
+	ikMode,
+	servoMode,
+} ModeType_e;
+
+typedef enum {
+	selectPidX,
+	selectPidY,
+} PidSelect_e;
+
+
+
+bool isCommandTypeInRange(CmdType_e cmdType, CmdType_e lower, CmdType_e upper);
+
 
 
 #endif /* APPLICATION_USER_COMMUNICATOR_CMDTYPE_H_ */

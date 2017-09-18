@@ -35,7 +35,7 @@ void RingBuffer<T>::Write(T data){
 		return;	// i mo¿emy pomin¹c kolejny krok...
 	}
 
-	// Je¿eli bufor nie by³ pe³ny wczeœniej i
+	// Je¿eli bufor nie by³ pe³ny wczeœniej i...
 	if(_Tail == _Head) _Status.Full = true; // ... je¿eli ogon i g³owa to to samo to bufor pe³ny
 
 }
@@ -79,5 +79,6 @@ unsigned int  RingBuffer<T>::Size(void){
 
 
 template class RingBuffer<float>;
+template class RingBuffer<char>;
 
 

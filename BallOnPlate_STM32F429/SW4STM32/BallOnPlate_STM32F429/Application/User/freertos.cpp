@@ -55,52 +55,23 @@
 
 #include <PID/DiscreteTimePID/DiscreteTimePID.h>
 
-#include "StewardPlatform/BallControl/Axis.h"
-#include "StewardPlatform/BallControl/DOF.h"
+#include "StewardPlatform/PlatformModes/PIDMode/BallControl/Axis.h"
+#include "StewardPlatform/PlatformModes/PIDMode/BallControl/DOF.h"
 #include "StewardPlatform/StewardPlatform.h"
 
 /* USER CODE END Includes */
 
 /* Variables -----------------------------------------------------------------*/
 osThreadId defaultTaskHandle;
-osThreadId pidTaskHandle;
 
 /* USER CODE BEGIN Variables */
-StewardPlatform* master;
-DiscreteTimePID* XPid;
-DiscreteTimePID* YPid;
-
-XAxis 				*XPos;
-YAxis 				*YPos;
-RollDOF 			*Roll;
-PitchDOF 			*Pitch;
-
-double kpX = 0.065;
-double kiX = 0.03;
-double kdX = 0.044;
-double nX = 10;
-
-double kpY = 0.065;
-double kiY = 0.03;
-double kdY = 0.044;
-double nY = 10;
-
-double dt = 0.005;
-
-float X,Y;
-int td,prev_td,td_inc;
-
-double setpointX = 0;
-double setpointY = 0;
-
-float outX,outY;
-double errorX;
-double errorY;
+StewardPlatform* stewardPlatform;
+int freeHeap;
+int minFreeHeap;
 /* USER CODE END Variables */
 
 /* Function prototypes -------------------------------------------------------*/
 void StartDefaultTask(void const * argument);
-extern void StartPIDTask(void const * argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -111,23 +82,41 @@ void StartProcedure(void);
 /* USER CODE END FunctionPrototypes */
 
 /* Hook prototypes */
+void vApplicationIdleHook(void);
+void vApplicationTickHook(void);
+
+/* USER CODE BEGIN 2 */
+__weak void vApplicationIdleHook( void )
+{
+   /* vApplicationIdleHook() will only be called if configUSE_IDLE_HOOK is set
+   to 1 in FreeRTOSConfig.h. It will be called on each iteration of the idle
+   task. It is essential that code added to this hook function never attempts
+   to block in any way (for example, call xQueueReceive() with a block time
+   specified, or call vTaskDelay()). If the application makes use of the
+   vTaskDelete() API function (as this demo application does) then it is also
+   important that vApplicationIdleHook() is permitted to return to its calling
+   function, because it is the responsibility of the idle task to clean up
+   memory allocated by the kernel to any task that has since been deleted. */
+}
+/* USER CODE END 2 */
+
+/* USER CODE BEGIN 3 */
+__weak void vApplicationTickHook( void )
+{
+   /* This function will be called by each tick interrupt if
+   configUSE_TICK_HOOK is set to 1 in FreeRTOSConfig.h. User code can be
+   added here, but the tick hook is called from an interrupt context, so
+   code must not attempt to block, and only the interrupt safe FreeRTOS API
+   functions can be used (those that end in FromISR()). */
+}
+/* USER CODE END 3 */
 
 /* Init FreeRTOS */
 
 void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN Init */
-	master = new StewardPlatform;
+	stewardPlatform = new StewardPlatform;
 
-
-
-	XPos = new XAxis(master->TouchPanel);
-	YPos = new YAxis(master->TouchPanel);
-	Roll = new RollDOF(master->Platform.Controller);
-	Pitch= new PitchDOF(master->Platform.Controller);
-
-
-	XPid = new DiscreteTimePID(kpX,kiX,kdX,dt,nX,XPos,Pitch);
-	YPid = new DiscreteTimePID(kpY,kiY,kdY,dt,nY,YPos,Roll);
 
   /* USER CODE END Init */
 
@@ -148,10 +137,6 @@ void MX_FREERTOS_Init(void) {
   osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 512);
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 
-  /* definition and creation of pidTask */
-  osThreadDef(pidTask, StartPIDTask, osPriorityHigh, 0, 256);
-  pidTaskHandle = osThreadCreate(osThread(pidTask), NULL);
-
   /* USER CODE BEGIN RTOS_THREADS */
 	/* add threads, ... */
 
@@ -167,96 +152,13 @@ void StartDefaultTask(void const * argument)
 {
 
   /* USER CODE BEGIN StartDefaultTask */
-	int inc = 0;
-	master->CommunicationCenter.Bluetooth.begin();
-
 	StartProcedure();
-	bool stopbuff = true;
 
 	/* Infinite loop */
 	for(;;)
 	{
-		prev_td = td;
-		td = master->TouchPanel.IsTouched();
-
-		bool cmdFlag = false;
-		Command cmd = master->CommunicationCenter.receiveCmd(&cmdFlag);
-
-
-
-		if(cmdFlag){
-			switch(cmd.getType()){
-
-			case Stop:
-				stopbuff = false;
-				break;
-
-			case Start:
-				stopbuff = true;
-				break;
-
-			case setTargetX:
-				setpointX = cmd.getParam();
-				break;
-
-			case setTargetY:
-				setpointY = cmd.getParam();
-				break;
-
-			default:
-				break;
-			}
-		}
-		td = td && stopbuff;
-
-		if( ((prev_td == true) && (td == false))  ){
-			td_inc++;
-
-			XPid->Reset();
-			YPid->Reset();
-			YPid->Stop();
-			XPid->Stop();
-
-			Roll->Set(0);
-			Pitch->Set(0);
-
-			StartProcedure();
-		}
-
-		if(td){
-			X = master->TouchPanel.GetX();
-			Y = master->TouchPanel.GetY();
-
-			YPid->Start();
-			XPid->Start();
-		}else{
-			X = 0;
-			Y = 0;
-		}
-
-		XPid->Tune(kpX,kiX,kdX,nX);
-		YPid->Tune(kpY,kiY,kdY,nY);
-
-
-		XPid->SetInput(23+setpointX);
-		YPid->SetInput(19+setpointY);
-
-		outX = XPid->GetOutput();
-		outY = YPid->GetOutput();
-
-		errorX = XPid->GetError();
-		errorY = YPid->GetError();
-
-
-		inc++;
-		if( inc == 50){
-			cmd = Command(pidXError,errorX);
-			master->CommunicationCenter.sendCmd(cmd);
-
-			cmd = Command(pidYError,errorY);
-			master->CommunicationCenter.sendCmd(cmd);
-			inc=0;
-		}
+		freeHeap = xPortGetFreeHeapSize();
+		minFreeHeap = xPortGetMinimumEverFreeHeapSize();
 
 
 		osDelay(10);
@@ -272,7 +174,7 @@ void StartDefaultTask(void const * argument)
  */
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
 
-	master->UART_TxCpltCallback(huart);
+	stewardPlatform->UART_TxCpltCallback(huart);
 }
 /********************************************************/
 
@@ -282,7 +184,7 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
  *
  */
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
-	master->UART_RxCpltCallback(huart);
+	stewardPlatform->UART_RxCpltCallback(huart);
 
 }
 /********************************************************/
@@ -290,21 +192,21 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 
 
 void StartProcedure(void){
-	master->Platform.Controller.Start();
+	stewardPlatform->Platform.Controller.Start();
 	double q[6] = {0,0,0,0,0,0};
-	master->Platform.Controller.Move(q);
+	stewardPlatform->Platform.Controller.Move(q);
 	osDelay(100);
 
 	q[2] = -0.01;
-	master->Platform.Controller.Move(q);
+	stewardPlatform->Platform.Controller.Move(q);
 	osDelay(300);
 
 	q[2] = 0;
-	master->Platform.Controller.Move(q);
+	stewardPlatform->Platform.Controller.Move(q);
 	osDelay(100);
 
 	q[2] = -0.002;
-	master->Platform.Controller.Move(q);
+	stewardPlatform->Platform.Controller.Move(q);
 	osDelay(100);
 
 }

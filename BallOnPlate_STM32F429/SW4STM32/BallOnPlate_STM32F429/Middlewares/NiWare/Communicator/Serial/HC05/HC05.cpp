@@ -17,10 +17,11 @@
  */
 /********************************************************/
 HC05::HC05(UART_HandleTypeDef* huart, GPIO_TypeDef* key_port, uint16_t key_pin):
-				hUART(huart),
-				hKeyPort(key_port),
-				keyPin(key_pin),
-				txOn(false){ rxByte = 0; txByte = 0;};
+				hUART(huart), hKeyPort(key_port), keyPin(key_pin), txOn(false),
+					RxBuffer(64), TxBuffer(64){
+	rxByte = 0;
+	txByte = 0;
+};
 /********************************************************/
 
 /**
@@ -53,7 +54,7 @@ void HC05::begin(){
 /********************************************************/
 void HC05::flush(){
 	while( !RxBuffer.IsEmpty())
-		RxBuffer.Pop();
+		RxBuffer.Read(); // TODO Poprostu head == tail!
 }
 /********************************************************/
 
@@ -68,7 +69,7 @@ char HC05::readChar(){
 
 	while( RxBuffer.IsEmpty() ){}; // Wait for data
 
-	return RxBuffer.Pop();
+	return RxBuffer.Read();
 }
 /********************************************************/
 
@@ -99,7 +100,10 @@ void HC05::writeChar(char c){
 		return;
 	}
 
-	TxBuffer.Push(c);
+	// je¿eli nie jest pe³ny
+	if( !TxBuffer.IsFull() )
+		TxBuffer.Write(c);
+
 }
 /********************************************************/
 
@@ -134,9 +138,10 @@ void HC05::writeStr(const char* str){
 /********************************************************/
 void HC05::processRxISR(){
 
-	RxBuffer.Push(rxByte);
+	if( !RxBuffer.IsFull() ){
+		RxBuffer.Write(rxByte);
+	}
 	receiveIT();
-
 }
 /********************************************************/
 
@@ -154,7 +159,8 @@ void HC05::processTxISR(){
 		txOn = false;
 		return;
 	}
-	transmitIT( TxBuffer.Pop() );
+
+	transmitIT( TxBuffer.Read() );
 
 }
 /********************************************************/

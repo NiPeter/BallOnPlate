@@ -12,3 +12,6 @@ SourceFiles=../Src/main.c;../Src/gpio.c;../Src/adc.c;../Src/freertos.c;../Src/ti
 HeaderPath=..\Drivers\STM32F4xx_HAL_Driver\Inc;..\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy;..\Middlewares\Third_Party\FreeRTOS\Source\portable\GCC\ARM_CM4F;..\Drivers\CMSIS\Device\ST\STM32F4xx\Include;..\Middlewares\Third_Party\FreeRTOS\Source\include;..\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS;..\Drivers\CMSIS\Include;
 CDefines=__weak=__attribute__((weak));__packed=__attribute__((__packed__));
 
+[]
+SourceFiles=;null;
+
