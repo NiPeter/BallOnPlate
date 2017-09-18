@@ -34,7 +34,11 @@ void TouchPanel4W::InitFilters(){ //TODO User shoud be able to attach own IFilte
 }
 /********************************************************/
 
-
+struct TPanelAQ{
+	float X;
+	float Y;
+	int T;
+} TPanel;
 
 /**
  * @brief Process function
@@ -83,8 +87,11 @@ void TouchPanel4W::Process(void){
 	taskENTER_CRITICAL();{
 		if(tmpX && tmpY){
 			X= corrX;
-			Y= corrY;
+			Y= -corrY;
 			Touched = true;
+			TPanel.X = X;
+			TPanel.Y = Y;
+			TPanel.T = Touched;
 		}
 	}taskEXIT_CRITICAL();
 

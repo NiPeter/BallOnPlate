@@ -21,6 +21,7 @@ typedef enum {
 	startMode,
 	stopMode,
 	resetMode,
+	notReady,
 
 
 

@@ -23,20 +23,29 @@ void DiscreteTimePID::Process() {
 	if( Working == false ) return;
 
 	e2=e1; e1=e0; u2=u1; u1=ControlVariable; // update variables
-
 	double y = Sensor->Get();  // read plant output
 
 	e0 = Setpoint - y;
+//	double saturat = 100;
+//	if( fabs(e0) > saturat ) e0 = ((e0 > 0) - (e0 < 0))*saturat;
 
 	// Deadband
 	if( fabs(e0) < Deadband ) e0 = 0;
 
 	ControlVariable = -ku1*u1 - ku2*u2 + ke0*e0 + ke1*e1 + ke2*e2;
 
-	if (ControlVariable > Max) ControlVariable = Max;  // limit to DAC or PWM range
-	if (ControlVariable < Min) ControlVariable = Min;
 
-	Actuator->Set(ControlVariable);   // sent to output
+	double out = ControlVariable;
+
+	if (ControlVariable > Max) out = Max;  // limit to DAC or PWM range
+	if (ControlVariable < Min) out = Min;
+
+	Actuator->Set(out);   // sent to output
+
+//	if (ControlVariable > Max) ControlVariable = Max;  // limit to DAC or PWM range
+//	if (ControlVariable < Min) ControlVariable = Min;
+//
+//	Actuator->Set(ControlVariable);   // sent to output
 }
 
 void DiscreteTimePID::Start() {
@@ -89,7 +98,7 @@ void DiscreteTimePID::Construct(double kp, double ki, double kd, double n, doubl
 
 	Tune(kp,ki,kd,n);
 
-	SetOutputLimits(12,-12);
+	SetOutputLimits(10);
 	SetDeadband(0);
 
 	Sensor = sensor;

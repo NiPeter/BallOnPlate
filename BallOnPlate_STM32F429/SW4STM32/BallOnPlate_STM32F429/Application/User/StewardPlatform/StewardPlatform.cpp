@@ -17,8 +17,7 @@ StewardPlatform::StewardPlatform() {
 
 	this->Construct();
 
-	Mode = new PIDMode(this,10);
-	Mode->Start();
+	Mode = NULL;
 	CommunicationCenter.Bluetooth.begin();
 
 }
@@ -143,13 +142,13 @@ void StewardPlatform::CommunicationTask(const void* argument) {
 		Command cmd = communicationCenter->receiveCmd(&isCommand);
 		if(isCommand){
 
-			communicationCenter->sendCmd(cmd);
+//			communicationCenter->sendCmd(cmd);
 			stewardPlatform->Execute(cmd);
 
-			cmd = Command(getFreeHeap,(float)xPortGetFreeHeapSize());
-			communicationCenter->sendCmd(cmd);
-		}
-		osDelay(10);
+//			cmd = Command(getFreeHeap,(float)xPortGetFreeHeapSize());
+//			communicationCenter->sendCmd(cmd);
+		}else
+		osDelay(1);
 
 	}
 }

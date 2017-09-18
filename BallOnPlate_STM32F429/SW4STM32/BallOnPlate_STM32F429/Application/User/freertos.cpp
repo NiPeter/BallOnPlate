@@ -146,6 +146,7 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE END RTOS_QUEUES */
 }
 
+int freeHeap;
 /* StartDefaultTask function */
 void StartDefaultTask(void const * argument)
 {
@@ -156,6 +157,7 @@ void StartDefaultTask(void const * argument)
 	/* Infinite loop */
 	for(;;)
 	{
+		freeHeap = xPortGetFreeHeapSize();
 
 
 		osDelay(10);

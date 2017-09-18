@@ -45,11 +45,19 @@ public:
 		Deadband = deadband;
 	}
 
-	void SetOutputLimits( double max, double min ){
-		if( min<max ){
+	void SetOutputLimits( double min, double max ){
+		if( min<=max ){
 			Max = max;
 			Min = min;
+		}else{
+			Min = max;
+			Max = min;
 		}
+	}
+
+	void SetOutputLimits( double limit){
+		Max = fabs(limit);
+		Min = -Max;
 	}
 
 	double GetTs() const {

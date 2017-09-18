@@ -37,6 +37,7 @@ PIDMode::~PIDMode() {
  */
 PIDMode::PIDMode(StewardPlatform* master, TickType_t samplingInterval_ms)
 : xSamplingInterval(samplingInterval_ms){
+	Ready = false;
 
 	Master = master;
 	this->Construct();
@@ -50,7 +51,11 @@ PIDMode::PIDMode(StewardPlatform* master, TickType_t samplingInterval_ms)
  *
  */
 void PIDMode::Start() {
-	Reset();
+	if(!Ready){
+		Command Cmd = Command(notReady);
+		Master->CommunicationCenter.sendCmd(Cmd);
+		return;
+	}
 	XPid->Start();
 	YPid->Start();
 }
@@ -62,6 +67,11 @@ void PIDMode::Start() {
  *
  */
 void PIDMode::Stop() {
+	if(!Ready){
+		Command Cmd = Command(notReady);
+		Master->CommunicationCenter.sendCmd(Cmd);
+		return;
+	}
 	XPid->Stop();
 	YPid->Stop();
 }
@@ -73,6 +83,11 @@ void PIDMode::Stop() {
  *
  */
 void PIDMode::Reset() {
+	if(!Ready){
+		Command Cmd = Command(notReady);
+		Master->CommunicationCenter.sendCmd(Cmd);
+		return;
+	}
 	XPid->Reset();
 	YPid->Reset();
 }
@@ -85,6 +100,11 @@ void PIDMode::Reset() {
  * @param cmd
  */
 void PIDMode::Execute(Command cmd) {
+	if(!Ready){
+		Command Cmd = Command(notReady);
+		Master->CommunicationCenter.sendCmd(Cmd);
+		return;
+	}
 
 	switch(CommunicationState.State){
 
@@ -187,6 +207,12 @@ void PIDMode::ExecuteSetSetpointState(Command cmd) {
 void PIDMode::ExecuteSetParamState(Command cmd) {
 }
 
+struct PIDMode_AQ{
+	double xError;
+	double yError;
+	double xOutput;
+	double yOutput;
+}PMode;
 
 /**
  *
@@ -194,34 +220,45 @@ void PIDMode::ExecuteSetParamState(Command cmd) {
  */
 void PIDMode::PIDModeTask(const void* argument) {
 	TickType_t 	xLastWakeTime;
-	PIDMode*	pidMode;
+	PIDMode*	Mode;
 
-	pidMode = (PIDMode*) argument;
+	Mode = (PIDMode*) argument;
 	bool previousTouchDetect,touchDetect;
 
-	pidMode->XPid->SetDeadband(0.3);
-	pidMode->YPid->SetDeadband(0.3);
+	osDelay(100);
+	Mode->Ready = true;
+
+	Mode->XPid->SetDeadband(0.3);
+	Mode->YPid->SetDeadband(0.3);
 
 	xLastWakeTime = xTaskGetTickCount();
 	while(true){
 
-		vTaskDelayUntil( &xLastWakeTime, pidMode->GetSamplingInterval() );
+		vTaskDelayUntil( &xLastWakeTime, Mode->GetSamplingInterval() );
 
 		previousTouchDetect = touchDetect;
-		touchDetect = pidMode->Master->TouchPanel.IsTouched();
+		touchDetect = Mode->Master->TouchPanel.IsTouched();
 
 		if( ((previousTouchDetect == true) && (touchDetect == false))  ){
-			pidMode->XPid->Reset();
-			pidMode->YPid->Reset();
+			Mode->XPid->Reset();
+			Mode->YPid->Reset();
 
-			pidMode->Roll->Set(0);
-			pidMode->Pitch->Set(0);
+			Mode->Roll->Set(0);
+			Mode->Pitch->Set(0);
 			continue;
 		}
 
 		if(touchDetect){
-			pidMode->XPid->Process();
-			pidMode->YPid->Process();
+			Mode->XPid->Process();
+			Mode->YPid->Process();
+
+			PMode.xError = Mode->XPid->GetError();
+			PMode.yError = Mode->YPid->GetError();
+
+			PMode.xOutput = Mode->XPid->GetOutput();
+			PMode.yOutput = Mode->YPid->GetOutput();
+
+
 		}
 	}
 
@@ -239,10 +276,15 @@ inline void PIDMode::Construct() {
 	CommunicationState.selectedPid = NULL;
 
 	XPidSettings.Kp = 0.045;
-	XPidSettings.Ki = 0.02;
-	XPidSettings.Kd = 0.01;
-	XPidSettings.N = 8;
-	YPidSettings = XPidSettings;
+	XPidSettings.Ki = 0.01;
+	XPidSettings.Kd = 0.02;
+	XPidSettings.N = 5;
+
+	YPidSettings.Kp = -XPidSettings.Kp;
+	YPidSettings.Ki = -XPidSettings.Ki;
+	YPidSettings.Kd = -XPidSettings.Kd;
+	YPidSettings.N = XPidSettings.N;
+
 
 
 	XPos = new XAxis(Master->TouchPanel);

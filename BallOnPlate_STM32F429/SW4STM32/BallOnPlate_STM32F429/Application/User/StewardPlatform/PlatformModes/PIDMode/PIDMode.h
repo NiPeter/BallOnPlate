@@ -47,6 +47,7 @@ public:
 
 private:
 
+	bool Ready;
 	osThreadId pidTaskHandle;
 	TickType_t xSamplingInterval;
 
