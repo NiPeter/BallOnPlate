@@ -27,17 +27,18 @@ public:
 
 	void SendEmpty(){
 		Command cmd = Command(empty);
-		sendCmd(cmd);
+		SendCommand(cmd);
 	}
 	void SendFail(){
 		Command cmd = Command(fail);
-		sendCmd(cmd);
+		SendCommand(cmd);
 	}
 	void SendOk(){
 		Command cmd = Command(ok);
-		sendCmd(cmd);
+		SendCommand(cmd);
 	}
 
+	void SendCommand(Command cmd);
 
 
 	void UARTRxCpltCallback(UART_HandleTypeDef *huart);

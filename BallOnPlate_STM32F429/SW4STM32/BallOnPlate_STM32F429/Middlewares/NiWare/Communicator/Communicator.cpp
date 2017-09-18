@@ -55,7 +55,7 @@ Communicator::~Communicator()
  * @return
  */
 /********************************************************/
-Command Communicator::receiveCmd(bool *cmdReceived)
+Command Communicator::ReceiveCommmand(bool *cmdReceived)
 {
 
 	char c;
@@ -98,7 +98,7 @@ Command Communicator::receiveCmd(bool *cmdReceived)
  * @param cmd
  */
 /********************************************************/
-void Communicator::sendCmd(Command cmd)
+void Communicator::SendCommand(Command cmd)
 {
 	char msg[CP_MSG_SIZE+2]; // +2 for terminating characters store
 	SerialPort->writeStr(packMsg(cmd,msg));

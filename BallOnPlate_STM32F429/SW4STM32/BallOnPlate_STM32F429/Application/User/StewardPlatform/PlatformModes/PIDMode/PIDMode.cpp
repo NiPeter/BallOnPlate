@@ -18,13 +18,13 @@ PIDMode::~PIDMode() {
 
 	osThreadTerminate(pidTaskHandle);
 
+	delete XPid;
+	delete YPid;
+
 	delete XPos;
 	delete YPos;
 	delete Roll;
 	delete Pitch;
-
-	delete XPid;
-	delete YPid;
 }
 /********************************************************/
 
@@ -53,7 +53,7 @@ PIDMode::PIDMode(StewardPlatform* master, TickType_t samplingInterval_ms)
 void PIDMode::Start() {
 	if(!Ready){
 		Command Cmd = Command(notReady);
-		Master->CommunicationCenter.sendCmd(Cmd);
+		Master->CommunicationCenter.SendCommand(Cmd);
 		return;
 	}
 	XPid->Start();
@@ -69,7 +69,7 @@ void PIDMode::Start() {
 void PIDMode::Stop() {
 	if(!Ready){
 		Command Cmd = Command(notReady);
-		Master->CommunicationCenter.sendCmd(Cmd);
+		Master->CommunicationCenter.SendCommand(Cmd);
 		return;
 	}
 	XPid->Stop();
@@ -85,7 +85,7 @@ void PIDMode::Stop() {
 void PIDMode::Reset() {
 	if(!Ready){
 		Command Cmd = Command(notReady);
-		Master->CommunicationCenter.sendCmd(Cmd);
+		Master->CommunicationCenter.SendCommand(Cmd);
 		return;
 	}
 	XPid->Reset();
@@ -102,7 +102,7 @@ void PIDMode::Reset() {
 void PIDMode::Execute(Command cmd) {
 	if(!Ready){
 		Command Cmd = Command(notReady);
-		Master->CommunicationCenter.sendCmd(Cmd);
+		Master->CommunicationCenter.SendCommand(Cmd);
 		return;
 	}
 
@@ -168,20 +168,18 @@ void PIDMode::ExecuteSetSetpointState(Command cmd) {
 	float		cmdParam = cmd.getParam();
 
 	// At first, remember setpoints
-	static float setpointX = XPid->GetSetpoint();
-	static float setpointY = YPid->GetSetpoint();
-//		static float setpointX = 0;
-//		static float setpointY = 0;
+		static float setpointX = 0;
+		static float setpointY = 0;
 
 	switch (cmdType) {
 		case setSetpointX:
 			// store setpoint x
-			setpointX = (double)cmdParam;
+			setpointX = cmdParam;
 			break;
 
 		case setSetpointY:
 			// store setpoint y
-			setpointY = (double)cmdParam;
+			setpointY = cmdParam;
 			break;
 
 		case submit:
@@ -220,12 +218,12 @@ struct PIDMode_AQ{
  */
 void PIDMode::PIDModeTask(const void* argument) {
 	TickType_t 	xLastWakeTime;
+	bool previousTouchDetect,touchDetect;
 	PIDMode*	Mode;
 
 	Mode = (PIDMode*) argument;
-	bool previousTouchDetect,touchDetect;
 
-	osDelay(100);
+//	osDelay(100);
 	Mode->Ready = true;
 
 	Mode->XPid->SetDeadband(0.3);
@@ -270,15 +268,15 @@ void PIDMode::PIDModeTask(const void* argument) {
 /**
  *
  */
-inline void PIDMode::Construct() {
+void PIDMode::Construct() {
 
 	CommunicationState.State = normal;
 	CommunicationState.selectedPid = NULL;
 
-	XPidSettings.Kp = 0.045;
-	XPidSettings.Ki = 0.01;
-	XPidSettings.Kd = 0.02;
-	XPidSettings.N = 5;
+	XPidSettings.Kp = 0.058;
+	XPidSettings.Ki = 0.02;
+	XPidSettings.Kd = 0.042;
+	XPidSettings.N = 10;
 
 	YPidSettings.Kp = -XPidSettings.Kp;
 	YPidSettings.Ki = -XPidSettings.Ki;
@@ -296,8 +294,6 @@ inline void PIDMode::Construct() {
 	XPid = new DiscreteTimePID(&XPidSettings,xSamplingInterval/(double)1000.0,XPos,Pitch);
 	YPid = new DiscreteTimePID(&YPidSettings,xSamplingInterval/(double)1000.0,YPos,Roll);
 
-	/* definition and creation of pidTask */
-	osThreadDef(PIDTask, PIDModeTask, osPriorityAboveNormal, 0, 256);
 	pidTaskHandle = osThreadCreate(osThread(PIDTask), this);
 
 }

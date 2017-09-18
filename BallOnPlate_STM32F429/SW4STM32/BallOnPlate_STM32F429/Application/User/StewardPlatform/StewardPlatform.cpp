@@ -43,7 +43,10 @@ StewardPlatform::~StewardPlatform() {
  * @param modeType
  */
 void StewardPlatform::SetMode(ModeType_e modeType) {
-	delete Mode;
+	if(Mode){
+		delete Mode;
+		Mode = NULL;
+	}
 
 	switch(modeType){
 
@@ -133,13 +136,12 @@ void StewardPlatform::RxTask(const void* argument) {
  */
 void StewardPlatform::CommunicationTask(const void* argument) {
 	StewardPlatform* stewardPlatform = (StewardPlatform*)argument;
-	PlatformCommunicator* communicationCenter = &stewardPlatform->CommunicationCenter;
 
 
 	while(true){
 		bool isCommand = false;
 
-		Command cmd = communicationCenter->receiveCmd(&isCommand);
+		Command cmd = stewardPlatform->CommunicationCenter.ReceiveCommmand(&isCommand);
 		if(isCommand){
 
 //			communicationCenter->sendCmd(cmd);
@@ -148,7 +150,7 @@ void StewardPlatform::CommunicationTask(const void* argument) {
 //			cmd = Command(getFreeHeap,(float)xPortGetFreeHeapSize());
 //			communicationCenter->sendCmd(cmd);
 		}else
-		osDelay(1);
+		osDelay(30);
 
 	}
 }

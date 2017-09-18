@@ -119,12 +119,13 @@ to exclude the API function. */
 #define INCLUDE_vTaskPrioritySet            1
 #define INCLUDE_uxTaskPriorityGet           1
 #define INCLUDE_vTaskDelete                 1
-#define INCLUDE_vTaskCleanUpResources       0
+#define INCLUDE_vTaskCleanUpResources       1
 #define INCLUDE_vTaskSuspend                1
 #define INCLUDE_vTaskDelayUntil             1
 #define INCLUDE_vTaskDelay                  1
 #define INCLUDE_xTaskGetSchedulerState      1
 #define INCLUDE_xTaskGetCurrentTaskHandle   1
+#define INCLUDE_xTaskAbortDelay             1
 #define INCLUDE_xTaskGetHandle              1
 
 /* Cortex-M specific definitions. */

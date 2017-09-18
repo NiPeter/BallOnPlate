@@ -53,6 +53,9 @@ private:
 
 	pidSettings XPidSettings,YPidSettings;
 
+	/* definition and creation of pidTask */
+	osThreadDef(PIDTask, PIDModeTask, osPriorityAboveNormal, 0, 512);
+
 	XAxis 				*XPos;
 	YAxis 				*YPos;
 	RollDOF 			*Roll;
@@ -80,7 +83,7 @@ private:
 		return isCommandTypeInRange(cmdType,setPidSamplingInterval,setPidDeadband);
 	}
 
-	inline void Construct();
+	void Construct();
 
 };
 

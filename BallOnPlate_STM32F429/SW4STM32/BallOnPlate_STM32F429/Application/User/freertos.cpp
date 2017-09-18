@@ -66,7 +66,8 @@ osThreadId defaultTaskHandle;
 
 /* USER CODE BEGIN Variables */
 StewardPlatform* stewardPlatform;
-
+int freeHeap;
+int minFreeHeap;
 /* USER CODE END Variables */
 
 /* Function prototypes -------------------------------------------------------*/
@@ -146,7 +147,6 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE END RTOS_QUEUES */
 }
 
-int freeHeap;
 /* StartDefaultTask function */
 void StartDefaultTask(void const * argument)
 {
@@ -158,6 +158,7 @@ void StartDefaultTask(void const * argument)
 	for(;;)
 	{
 		freeHeap = xPortGetFreeHeapSize();
+		minFreeHeap = xPortGetMinimumEverFreeHeapSize();
 
 
 		osDelay(10);
