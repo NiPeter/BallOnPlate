@@ -10,6 +10,7 @@
 
 #include "../Serial.hpp"
 #include "List/List.hpp"
+#include <TouchPanel/Filters/RingBuffer/RingBuffer.hpp>
 
 /***	Hardware STM32	***/
 #include "stm32f4xx_hal.h"
@@ -25,15 +26,16 @@ private:
 	GPIO_TypeDef* hKeyPort = NULL;
 	uint16_t keyPin;
 
-	// Tx and Rx Buffers
-	List<char> RxBuffer;
-	List<char> TxBuffer;
-
+	//TODO CHECK FOR UNSIGNESSNES!xD
 	// Tx and Rx Bytes
 	unsigned char rxByte;	// Receive Byte
 	unsigned char txByte;	// Transmit Byte
 
 	bool txOn; // True when transmition is on
+
+	// Tx and Rx Buffers
+	RingBuffer<char> RxBuffer;
+	RingBuffer<char> TxBuffer;
 
 public:
 

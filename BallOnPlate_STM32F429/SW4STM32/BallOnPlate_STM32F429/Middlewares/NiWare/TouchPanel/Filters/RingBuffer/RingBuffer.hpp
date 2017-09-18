@@ -24,7 +24,7 @@ class RingBuffer{
 	} _Status;
 
 public:
-	RingBuffer(unsigned int size);
+	RingBuffer(unsigned int size = 10);
 	~RingBuffer();
 	void Write(T data);
 	T Read(void);
