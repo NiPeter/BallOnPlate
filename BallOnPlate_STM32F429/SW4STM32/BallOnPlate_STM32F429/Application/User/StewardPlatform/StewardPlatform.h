@@ -31,24 +31,24 @@ public:
 
 	void SetMode(ModeType_e modeType);
 
-
-	static void CommunicationTask(void const * argument);
-
-
 	void UART_RxCpltCallback(UART_HandleTypeDef *huart);
 	void UART_TxCpltCallback(UART_HandleTypeDef *huart);
 
-public:
+protected:
 
 
-	PlatformControlSystem		Platform;
-	PlatformTouchPanel			TouchPanel;
+	PlatformControlSystem			Platform;
+	PlatformTouchPanel				TouchPanel;
 	PlatformCommunicationCenter		CommunicationCenter;
 
-	PlatformMode*				Mode;
+	PlatformMode*					Mode;
+
+private:
 
 	osThreadDef(StewardPlatformCommunicationTask, CommunicationTask, osPriorityNormal, 0, 512);
 	osThreadId communicationTaskHandle;
+
+	static void CommunicationTask(void const * argument);
 
 	void Construct();
 };

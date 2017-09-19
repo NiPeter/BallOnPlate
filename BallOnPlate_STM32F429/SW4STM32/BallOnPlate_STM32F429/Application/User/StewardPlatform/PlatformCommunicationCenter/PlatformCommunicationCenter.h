@@ -37,6 +37,8 @@ public:
 		Comm.SendPacket(cmd);
 	}
 
+	void SendPacket()
+
 	void StartBroadcast(){
 		Bluetooth.begin();
 	}
