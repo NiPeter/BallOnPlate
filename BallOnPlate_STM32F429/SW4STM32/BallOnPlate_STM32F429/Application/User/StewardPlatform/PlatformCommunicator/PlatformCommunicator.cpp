@@ -56,3 +56,4 @@ void PlatformCommunicator::UARTTxCpltCallback(UART_HandleTypeDef* huart) {
 	if(huart->Instance == Bluetooth.getUARTInstance())
 		osSemaphoreRelease(txSemaphoreHandle);
 }
+

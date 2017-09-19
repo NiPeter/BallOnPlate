@@ -16,8 +16,6 @@
 /***	static functions	***/
 
 static float floatFrom2Ints(int intPart, int fracPart, unsigned int nZeros = 0);
-static void intsFromFloat(float floatNumber, int *intPart, unsigned int *fracPartNominator, unsigned int *fracPartDenominator);
-static void strFromFloat(float param, char * result);
 static unsigned int orderOfMagnitude(int number,unsigned int nZeros = 0);
 
 /***						***/
@@ -225,42 +223,6 @@ char * ftostr(float num, char * str){
 	sprintf (str, "%s%d.%04d", tmpSign, tmpInt1, tmpInt2);
 
 	return str;
-}
-
-static void intsFromFloat(float floatNumber, int *intPart, unsigned int *fracPartNominator, unsigned int *fracPartDenominator) {
-
-	*intPart = (int)floatNumber;
-
-	unsigned int den = 1000;
-
-	*fracPartNominator = (unsigned int)(fabs(floatNumber - *intPart) * den);
-	*fracPartDenominator = den;
-}
-
-static void strFromFloat(float param, char * result) {
-	char result_t[30];
-	char temp[20];
-
-	int i;
-	unsigned int n, d;
-	intsFromFloat(param, &i, &n, &d);
-
-
-	itoa(i, result_t, 10);
-
-	strcpy(temp, ".");
-
-	unsigned int n_mag, d_mag;
-	n_mag = orderOfMagnitude(n);
-	d_mag = orderOfMagnitude(d);
-
-	for (unsigned int i = 0; i < ( (d_mag - n_mag)-1); i++) strcat(temp, "0");
-	strcat(result_t,(char*) temp);
-
-	itoa(n, temp, 10);
-	strcat(result_t, (char*)temp);
-
-	strcpy(result, result_t);
 }
 
 static float floatFrom2Ints(int intPart, int fracPart, unsigned int nZeros) {

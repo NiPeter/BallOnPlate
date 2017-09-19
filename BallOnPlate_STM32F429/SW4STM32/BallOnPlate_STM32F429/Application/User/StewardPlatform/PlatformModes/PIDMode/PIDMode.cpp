@@ -7,6 +7,7 @@
 
 #include "PIDMode.h"
 #include "../../StewardPlatform.h"
+#include "cpu_utils.h"
 
 
 /**
@@ -214,6 +215,9 @@ void PIDMode::PIDModeTask(const void* argument) {
 
 	bool previousTouchDetect,touchDetect;
 	while(true){
+		extern float cpuUsage;
+		extern float osGetCPUUsage();
+		cpuUsage = osGetCPUUsage();
 
 		vTaskDelayUntil( &xLastWakeTime, Mode->GetSamplingInterval() );
 
@@ -260,6 +264,11 @@ void PIDMode::Construct() {
 	XPidSettings.Ki = 0.02;
 	XPidSettings.Kd = 0.035;
 	XPidSettings.N = 10;
+
+//	XPidSettings.Kp = 0.035;
+//	XPidSettings.Ki = 0.013;
+//	XPidSettings.Kd = 0.065;
+//	XPidSettings.N = 8;
 
 	YPidSettings.Kp = -XPidSettings.Kp;
 	YPidSettings.Ki = -XPidSettings.Ki;

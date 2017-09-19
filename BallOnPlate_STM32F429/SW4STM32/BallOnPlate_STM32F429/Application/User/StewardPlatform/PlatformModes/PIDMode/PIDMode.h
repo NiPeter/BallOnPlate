@@ -31,7 +31,7 @@ class PIDMode: public PlatformMode {
 public:
 
 	~PIDMode();
-	PIDMode(StewardPlatform* master,TickType_t samplingInterval_ms = 10);
+	PIDMode(StewardPlatform* master,TickType_t samplingInterval_ms = 5);
 
 	void Start();
 	void Stop();

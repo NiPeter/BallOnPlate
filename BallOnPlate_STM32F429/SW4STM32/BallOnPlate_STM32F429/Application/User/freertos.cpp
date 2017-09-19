@@ -52,13 +52,8 @@
 #include "cmsis_os.h"
 
 /* USER CODE BEGIN Includes */
-
-#include <PID/DiscreteTimePID/DiscreteTimePID.h>
-
-#include "StewardPlatform/PlatformModes/PIDMode/BallControl/Axis.h"
-#include "StewardPlatform/PlatformModes/PIDMode/BallControl/DOF.h"
 #include "StewardPlatform/StewardPlatform.h"
-
+#include "CPU/cpu_utils.h"
 /* USER CODE END Includes */
 
 /* Variables -----------------------------------------------------------------*/
@@ -68,6 +63,8 @@ osThreadId defaultTaskHandle;
 StewardPlatform* stewardPlatform;
 int freeHeap;
 int minFreeHeap;
+float cpuUsage;
+TickType_t defaultDelay;
 /* USER CODE END Variables */
 
 /* Function prototypes -------------------------------------------------------*/
@@ -115,8 +112,6 @@ __weak void vApplicationTickHook( void )
 
 void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN Init */
-	stewardPlatform = new StewardPlatform;
-
 
   /* USER CODE END Init */
 
@@ -152,16 +147,20 @@ void StartDefaultTask(void const * argument)
 {
 
   /* USER CODE BEGIN StartDefaultTask */
+	stewardPlatform = new StewardPlatform;
+
 	StartProcedure();
+
+	defaultDelay = 10;
 
 	/* Infinite loop */
 	for(;;)
 	{
 		freeHeap = xPortGetFreeHeapSize();
 		minFreeHeap = xPortGetMinimumEverFreeHeapSize();
+		cpuUsage = osGetCPUUsage();
 
-
-		osDelay(10);
+		if(defaultDelay) osDelay(defaultDelay);
 	}
   /* USER CODE END StartDefaultTask */
 }
