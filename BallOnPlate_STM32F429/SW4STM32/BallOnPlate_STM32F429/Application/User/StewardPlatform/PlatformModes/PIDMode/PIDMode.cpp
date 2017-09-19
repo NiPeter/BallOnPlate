@@ -39,9 +39,12 @@ PIDMode::~PIDMode() {
 PIDMode::PIDMode(StewardPlatform* master, TickType_t samplingInterval_ms)
 : xSamplingInterval(samplingInterval_ms){
 
+	movable = true;
 
 	Master = master;
 	this->Construct();
+
+	Master->PlatformSystem.Controller.Start();
 
 }
 /********************************************************/
@@ -87,112 +90,28 @@ void PIDMode::Reset() {
  *
  * @param cmd
  */
-void PIDMode::Execute(MessagePacket cmd) {
-
-	switch(CommunicationState.State){
-
-	case normal:
-		ExecuteNormalState(cmd);
-		break;
-
-	case setSetpoint:
-		ExecuteSetSetpointState(cmd);
-		break;
-
-	case setParameter:
-		ExecuteSetParamState(cmd);
-		break;
-
-	}
-}
+//void PIDMode::Execute(MessagePacket cmd) {
+//
+//	switch(CommunicationState.State){
+//
+//	case normal:
+//		ExecuteNormalState(cmd);
+//		break;
+//
+//	case setSetpoint:
+//		ExecuteSetSetpointState(cmd);
+//		break;
+//
+//	case setParameter:
+//		ExecuteSetParamState(cmd);
+//		break;
+//
+//	}
+//}
 /********************************************************/
 
 
-void PIDMode::ExecuteNormalState(MessagePacket& cmd) {
-//	CmdType_e 	cmdType = cmd.getType();
-//	float		cmdParam = cmd.getParam();
-//
-//	switch (cmdType) { // Only two commands accepted
-//
-//	case moveTo:
-//		CommunicationState.State = setSetpoint;
-//		break;
-//
-//	case selectPid:{
-//		CommunicationState.State = setParameter;
-//		PidSelect_e pid = (PidSelect_e)cmdParam;
-//
-//		if( pid == selectPidX) {
-//			CommunicationState.selectedPid = XPid;
-//			return;
-//		}
-//		else if ( pid == selectPidY ){
-//			CommunicationState.selectedPid = YPid;
-//			return;
-//		}
-//		else {
-//			// Wrong command parameter, return to normal state
-//			CommunicationState.State = normal;
-//			Master->CommunicationCenter.SendFail();
-//			return;
-//		}
-//		break;
-//	}
-//	default:
-//		// Not recognized command
-//		Master->CommunicationCenter.SendEmpty();
-//		break;
-//	}
-}
 
-void PIDMode::ExecuteSetSetpointState(MessagePacket& cmd) {
-//	CmdType_e 	cmdType = cmd.getType();
-//	float		cmdParam = cmd.getParam();
-//
-//	// At first, remember setpoints
-//		static float setpointX = 0;
-//		static float setpointY = 0;
-//
-//	switch (cmdType) {
-//		case setSetpointX:
-//			// store setpoint x
-//			setpointX = cmdParam;
-//			break;
-//
-//		case setSetpointY:
-//			// store setpoint y
-//			setpointY = cmdParam;
-//			break;
-//
-//		case submit:
-//			// write setpoints and return normal state
-//			XPid->SetSetpoint(setpointX);
-//			YPid->SetSetpoint(setpointY);
-//			CommunicationState.State = normal;
-//			break;
-//
-//		case cancel:
-//			// cancel unsubmitted changes
-//			setpointX = XPid->GetSetpoint();
-//			setpointY = YPid->GetSetpoint();
-//			CommunicationState.State = normal;
-//			break;
-//
-//		default:
-//			// Ups forbidden command, cancel unsubmitted changes
-//			setpointX = XPid->GetSetpoint();
-//			setpointY = YPid->GetSetpoint();
-//			CommunicationState.State = normal;
-//
-//			Master->CommunicationCenter.SendFail();
-//			break;
-//	}
-//
-
-}
-
-void PIDMode::ExecuteSetParamState(MessagePacket& cmd) {
-}
 
 //TODO Achtung Aqusition!
 struct PIDMode_AQ{
@@ -259,15 +178,15 @@ void PIDMode::PIDModeTask(const void* argument) {
 void PIDMode::Construct() {
 
 
-	XPidSettings.Kp = 0.04;
-	XPidSettings.Ki = 0.02;
-	XPidSettings.Kd = 0.035;
-	XPidSettings.N = 10;
+//	XPidSettings.Kp = 0.04;
+//	XPidSettings.Ki = 0.02;
+//	XPidSettings.Kd = 0.035;
+//	XPidSettings.N = 10;
 
-//	XPidSettings.Kp = 0.035;
-//	XPidSettings.Ki = 0.013;
-//	XPidSettings.Kd = 0.065;
-//	XPidSettings.N = 8;
+		XPidSettings.Kp = 0.035;
+		XPidSettings.Ki = 0.013;
+		XPidSettings.Kd = 0.065;
+		XPidSettings.N = 8;
 
 	YPidSettings.Kp = -XPidSettings.Kp;
 	YPidSettings.Ki = -XPidSettings.Ki;

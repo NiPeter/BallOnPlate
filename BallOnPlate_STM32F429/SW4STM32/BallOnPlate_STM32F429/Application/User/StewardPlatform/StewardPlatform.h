@@ -18,6 +18,7 @@
 #include "PlatformControlSystem/PlatformControlSystem.h"
 #include "PlatformTouchPanel/PlatformTouchPanel.h"
 #include "PlatformModes/PIDMode/PIDMode.h"
+#include "PlatformModes/IKMode/IKMode.h"
 
 class Command;
 class CommandFactory;

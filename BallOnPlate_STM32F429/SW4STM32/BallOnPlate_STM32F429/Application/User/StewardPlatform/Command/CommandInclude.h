@@ -10,5 +10,6 @@
 
 #include "Command.h"
 #include "GeneralCommand.h"
+#include "ModeCommand.h"
 
 #endif /* COMMANDINCLUDE_H_ */

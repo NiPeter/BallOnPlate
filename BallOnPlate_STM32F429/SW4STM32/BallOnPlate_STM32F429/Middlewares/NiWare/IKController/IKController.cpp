@@ -25,6 +25,8 @@ IKController::IKController(const IKController& controller) {
 		Q[i] = controller.Q[i];
 		Angles[i] = controller.Angles[i];
 	}
+	Stop();
+
 }
 
 
@@ -36,6 +38,7 @@ IKController::IKController(const IKController& controller) {
 IKController::IKController(Servo servo[6],Steward_Struct* steward){
 	for(int i=0;i<6;i++) servos[i] = &servo[i];
 
+	Stop();
 	IKInit(steward);
 
 }

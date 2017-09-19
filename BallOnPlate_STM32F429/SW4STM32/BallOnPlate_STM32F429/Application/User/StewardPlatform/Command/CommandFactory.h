@@ -26,8 +26,8 @@ public:
 		case ok:
 			return new CommandOk;
 
-		case submit: //TODO
-			return new CommandEmpty;
+		case submit:
+			return new CommandSubmit;
 
 		case cancel: //TODO
 			return new CommandEmpty;
@@ -43,6 +43,15 @@ public:
 
 		case setMode:
 			return new CommandSetMode((ModeType_e) msg.GetParam());
+
+		case moveTo:
+			return new CommandMoveTo();
+
+		case setSetpointX:
+			return new CommandSetSetpointX(msg.GetParam());
+
+		case setSetpointY:
+			return new CommandSetSetpointY(msg.GetParam());
 
 		default:
 			return new CommandEmpty;

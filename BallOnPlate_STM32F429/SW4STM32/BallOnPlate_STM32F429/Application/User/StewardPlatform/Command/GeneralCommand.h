@@ -10,64 +10,130 @@
 
 #include "Command.h"
 
+
+
 class CommandEmpty : public Command{
 	void Execute(StewardPlatform* platform){
 		platform->CommunicationCenter.SendEmpty();
+
 		selfDelete();
 	}
 };
+
+
 
 class CommandOk : public Command{
 
 	void Execute(StewardPlatform* platform){
 		platform->CommunicationCenter.SendOk();
+
 		selfDelete();
 	}
 };
+
+
 
 class CommandFail : public Command{
 
 	void Execute(StewardPlatform* platform){
 		platform->CommunicationCenter.SendFail();
+
 		selfDelete();
 	}
 };
 
+
+
+//TODO REFACTOR
 class CommandSubmit : public Command{
 
 	void Execute(StewardPlatform* platform){
-		platform->CommunicationCenter.SendPacket(MessagePacket(submit));
+
+		switch( stateHandler.Mode ){
+
+		case none:
+			platform->CommunicationCenter.SendEmpty();
+			break;
+
+		case pidMode:
+			if(platform->Mode){
+
+				PIDMode* pidmode = reinterpret_cast<PIDMode*> (platform->Mode);//dynamic_cast<PIDMode*> (platform->Mode);
+				if(pidmode){
+
+					switch(stateHandler.State){
+					case moveToState:
+						pidmode->XPid->SetSetpoint(stateHandler.Pos.X);
+						pidmode->YPid->SetSetpoint(stateHandler.Pos.Y);
+						break;
+
+					case setParameterState:
+						break;
+
+					default:
+						platform->CommunicationCenter.SendEmpty();
+						break;
+					}
+
+				} else platform->CommunicationCenter.SendFail();
+
+
+			} else platform->CommunicationCenter.SendFail();
+			break;
+
+		default:
+			platform->CommunicationCenter.SendEmpty();
+			break;
+		}
+
+		stateHandler.State = normalState;
+
 		selfDelete();
 	}
 };
+
+
 
 class CommandStartMode : public Command{
 
 	void Execute(StewardPlatform* platform){
-		if(platform->Mode) platform->Mode->Start();
+		if(platform->Mode)
+			platform->Mode->Start();
 		else platform->CommunicationCenter.SendFail();
+
 		selfDelete();
 	}
 
 };
+
+
 
 class CommandStopMode : public Command{
+
 	void Execute(StewardPlatform* platform){
-		if(platform->Mode) platform->Mode->Stop();
+		if(platform->Mode)
+			platform->Mode->Stop();
 		else platform->CommunicationCenter.SendFail();
+
 		selfDelete();
 	}
 };
+
+
 
 class CommandResetMode : public Command{
 
 	void Execute(StewardPlatform* platform){
-		if(platform->Mode) platform->Mode->Reset();
+		if(platform->Mode)
+			platform->Mode->Reset();
 		else platform->CommunicationCenter.SendFail();
+
 		selfDelete();
 	}
 
 };
+
+
 
 class CommandSetMode : public Command{
 
@@ -77,7 +143,12 @@ public:
 	CommandSetMode( ModeType_e modeType ) : ModeType(modeType) {};
 
 	void Execute(StewardPlatform* platform){
+
 		platform->SetMode(ModeType);
+
+		stateHandler.State = normalState;
+		stateHandler.Mode = ModeType;
+
 		selfDelete();
 	}
 };

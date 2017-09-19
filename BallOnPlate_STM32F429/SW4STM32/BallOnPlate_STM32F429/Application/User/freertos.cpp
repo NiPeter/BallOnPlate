@@ -149,32 +149,13 @@ void StartDefaultTask(void const * argument)
   /* USER CODE BEGIN StartDefaultTask */
 	stewardPlatform = new StewardPlatform;
 
-	stewardPlatform->StartProcedure();
-
-	Command* cmd;
-
-	cmd = CommandFactory::GetCommand(MessagePacket(setMode,pidMode));
-	cmd->Execute(stewardPlatform);
-
-	cmd = CommandFactory::GetCommand(MessagePacket(startMode));
-	cmd->Execute(stewardPlatform);
-
-	int i = xPortGetFreeHeapSize();
-
-	for(uint8_t i = 0; i<20 ;i++){
-		cmd = CommandFactory::GetCommand(MessagePacket(empty));
-		cmd->Execute(stewardPlatform);
-	}
-
-	cmd = NULL;
-
-	stewardPlatform->CommunicationCenter.SendPacket( MessagePacket(setSetpointX, xPortGetFreeHeapSize() ) );
-	stewardPlatform->CommunicationCenter.SendPacket( MessagePacket(setSetpointX, i - xPortGetFreeHeapSize() ) );
+//	stewardPlatform->StartProcedure();
 
 
+	stewardPlatform->SetMode(ikMode);
 
 
-	defaultDelay = 10;
+	defaultDelay = 20;
 
 	/* Infinite loop */
 	for(;;)
@@ -182,6 +163,7 @@ void StartDefaultTask(void const * argument)
 		freeHeap = xPortGetFreeHeapSize();
 		minFreeHeap = xPortGetMinimumEverFreeHeapSize();
 		cpuUsage = osGetCPUUsage();
+
 
 		if(defaultDelay) osDelay(defaultDelay);
 	}

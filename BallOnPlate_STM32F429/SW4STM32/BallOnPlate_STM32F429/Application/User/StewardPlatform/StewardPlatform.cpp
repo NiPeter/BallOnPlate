@@ -55,6 +55,10 @@ void StewardPlatform::SetMode(ModeType_e modeType) {
 		Mode = new PIDMode(this);
 		break;
 
+	case ikMode:
+		Mode = new IKMode(&this->PlatformSystem.Controller);
+		break;
+
 	default:
 		break;
 	}
@@ -81,42 +85,42 @@ void StewardPlatform::Construct() {
  */
 void StewardPlatform::Execute(MessagePacket cmd) {
 
-	switch(cmd.GetType()){
-	case empty:
-		CommunicationCenter.SendEmpty();
-		break;
-
-	case fail:
-		break;
-
-	case ok:
-		break;
-
-	case startMode:
-		if(Mode) Mode->Start();
-			else CommunicationCenter.SendFail();
-		break;
-
-	case stopMode:
-		if(Mode) Mode->Stop();
-			else CommunicationCenter.SendFail();
-		break;
-
-	case resetMode:
-		if(Mode) Mode->Reset();
-			else CommunicationCenter.SendFail();
-		break;
-
-	case setMode:
-		SetMode((ModeType_e)cmd.GetParam());
-		break;
-
-	default:
-		if(Mode) Mode->Execute(cmd);
-			else CommunicationCenter.SendFail();
-		break;
-
-	}
+//	switch(cmd.GetType()){
+//	case empty:
+//		CommunicationCenter.SendEmpty();
+//		break;
+//
+//	case fail:
+//		break;
+//
+//	case ok:
+//		break;
+//
+//	case startMode:
+//		if(Mode) Mode->Start();
+//			else CommunicationCenter.SendFail();
+//		break;
+//
+//	case stopMode:
+//		if(Mode) Mode->Stop();
+//			else CommunicationCenter.SendFail();
+//		break;
+//
+//	case resetMode:
+//		if(Mode) Mode->Reset();
+//			else CommunicationCenter.SendFail();
+//		break;
+//
+//	case setMode:
+//		SetMode((ModeType_e)cmd.GetParam());
+//		break;
+//
+//	default:
+//		if(Mode) Mode->Execute(cmd);
+//			else CommunicationCenter.SendFail();
+//		break;
+//
+//	}
 }
 /********************************************************/
 
@@ -138,9 +142,12 @@ void StewardPlatform::CommunicationTask(const void* argument) {
 		if(isPacket){
 
 			communicationCenter->Comm.SendPacket(packet);
-			stewardPlatform->Execute(packet);
+
+			Command* cmd = CommandFactory::GetCommand(packet);
+			cmd -> Execute(stewardPlatform);
+
 		}else
-		osDelay(30);
+		osDelay(10);
 
 	}
 }

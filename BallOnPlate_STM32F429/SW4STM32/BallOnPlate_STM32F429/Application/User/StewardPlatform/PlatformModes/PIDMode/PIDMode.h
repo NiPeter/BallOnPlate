@@ -21,12 +21,7 @@
  *
  */
 class PIDMode: public PlatformMode {
-
-	typedef enum{
-		normal,
-		setSetpoint,
-		setParameter,
-	}State_e;
+	friend class CommandSubmit;
 
 public:
 
@@ -37,7 +32,7 @@ public:
 	void Stop();
 	void Reset();
 
-	void Execute(MessagePacket cmd);
+//	void Execute(MessagePacket cmd);
 
 	TickType_t GetSamplingInterval() const {
 		return xSamplingInterval;
@@ -46,6 +41,7 @@ public:
 	static void PIDModeTask(void const * argument);
 
 private:
+	StewardPlatform* Master;
 
 	osThreadId pidTaskHandle;
 	TickType_t xSamplingInterval;
@@ -64,15 +60,8 @@ private:
 	DiscreteTimePID* YPid;
 
 
-	struct{
-		State_e 			State;
-		DiscreteTimePID*	selectedPid;
-	}CommunicationState;
 
 
-	void ExecuteNormalState(MessagePacket& cmd);
-	void ExecuteSetSetpointState(MessagePacket& cmd);
-	void ExecuteSetParamState(MessagePacket& cmd);
 
 	bool isSetpointCommandType(CmdType_e cmdType){
 		return isCommandTypeInRange(cmdType,setSetpointX,setSetpointY);

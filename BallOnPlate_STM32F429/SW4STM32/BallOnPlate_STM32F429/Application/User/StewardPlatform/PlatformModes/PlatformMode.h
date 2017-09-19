@@ -23,11 +23,15 @@ public:
 	virtual void Stop() = 0;
 	virtual void Reset() = 0;
 
-	virtual void Execute(MessagePacket cmd) = 0;
+//	virtual void Execute(MessagePacket cmd) = 0;
+
+	bool IsMovable() const{
+		return movable;
+	}
 
 protected:
 
-	StewardPlatform* Master;
+	bool movable;
 };
 
 #endif /* PLATFORMMODE_H_ */

@@ -12,12 +12,44 @@
 #include <Communicator/MessagePacket/CmdType.h>
 
 
+	typedef struct{
+		float X;
+		float Y;
+		float Z;
+		float Roll;
+		float Pitch;
+		float Yaw;
+	}DesiredPos;
+
+	typedef enum{
+		normalState,
+		moveToState,
+		setPosState,
+		setParameterState,
+
+	}State_e;
+
+	typedef struct {
+		State_e 			State;
+		ModeType_e			Mode;
+		DesiredPos			Pos;
+		DiscreteTimePID*	selectedPid;
+	}StateHandler;
+
+
 /*
  *
  */
 class Command {
+public:
 
-protected:
+
+
+//protected:
+
+
+	static StateHandler stateHandler;
+
 
 	void selfDelete(){
 		delete this;
@@ -31,5 +63,7 @@ public:
 	virtual void Execute(StewardPlatform* platform) = 0;
 
 };
+
+
 
 #endif /* COMMAND_H_ */
