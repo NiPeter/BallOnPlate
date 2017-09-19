@@ -12,7 +12,7 @@
 #include "task.h"
 #include "cmsis_os.h"
 
-#include "PlatformCommunicator/PlatformCommunicator.h"
+#include "PlatformCommunicationCenter/PlatformCommunicationCenter.h"
 #include "PlatformControlSystem/PlatformControlSystem.h"
 #include "PlatformTouchPanel/PlatformTouchPanel.h"
 #include "PlatformModes/PIDMode/PIDMode.h"
@@ -27,16 +27,12 @@ public:
 	StewardPlatform();
 	virtual ~StewardPlatform();
 
-	void Execute(Command cmd);
+	void Execute(MessagePacket cmd);
 
 	void SetMode(ModeType_e modeType);
 
 
-	static void TxTask(void const * argument);
-	static void RxTask(void const * argument);
-	static void TouchPanelTask(void const * argument);
 	static void CommunicationTask(void const * argument);
-
 
 
 	void UART_RxCpltCallback(UART_HandleTypeDef *huart);
@@ -47,13 +43,11 @@ public:
 
 	PlatformControlSystem		Platform;
 	PlatformTouchPanel			TouchPanel;
-	PlatformCommunicator		CommunicationCenter;
+	PlatformCommunicationCenter		CommunicationCenter;
 
 	PlatformMode*				Mode;
 
-	osThreadId rxTaskHandle;
-	osThreadId txTaskHandle;
-	osThreadId touchPanelTaskHandle;
+	osThreadDef(StewardPlatformCommunicationTask, CommunicationTask, osPriorityNormal, 0, 512);
 	osThreadId communicationTaskHandle;
 
 	void Construct();

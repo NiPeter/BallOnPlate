@@ -49,11 +49,11 @@ Communicator::~Communicator()
 
 
 /**
- * Receive command via Seria interface
+ * Receive command via Serial interface
  * @return
  */
 /********************************************************/
-Command Communicator::ReceiveCommmand(bool *cmdReceived)
+MessagePacket Communicator::ReceivePacket(bool *isPacketReceived)
 {
 
 	char c;
@@ -71,7 +71,7 @@ Command Communicator::ReceiveCommmand(bool *cmdReceived)
 			msg[index] = '\0';
 			index = 0;
 			//			strcat(msg,'\0');
-			if(cmdReceived != NULL)	*cmdReceived = true;
+			if(isPacketReceived != NULL)	*isPacketReceived = true;
 			return unpackMsg(msg);
 
 		}else if(c != '\r'){
@@ -84,8 +84,8 @@ Command Communicator::ReceiveCommmand(bool *cmdReceived)
 
 	if(index==CP_MSG_SIZE) index = 0;
 
-	if(cmdReceived != NULL)	*cmdReceived = false;
-	return Command(fail);
+	if(isPacketReceived != NULL)	*isPacketReceived = false;
+	return MessagePacket(fail);
 }
 /********************************************************/
 
@@ -96,10 +96,10 @@ Command Communicator::ReceiveCommmand(bool *cmdReceived)
  * @param cmd
  */
 /********************************************************/
-void Communicator::SendCommand(Command cmd)
+void Communicator::SendPacket(MessagePacket packet)
 {
 	char msg[CP_MSG_SIZE+2]; // +2 for terminating characters store
-	SerialPort->writeStr(packMsg(cmd,msg));
+	SerialPort->writeStr(packMsg(packet,msg));
 }
 /********************************************************/
 
@@ -117,12 +117,12 @@ void Communicator::SendCommand(Command cmd)
  * @return
  */
 /********************************************************/
-Command Communicator::unpackMsg(const char * msg)
+MessagePacket Communicator::unpackMsg(const char * msg)
 {
 	CmdType_e cmdType = cmdTypeFromMsg(msg); // Pobierz typ komendy
 	float param = paramFromMsg(msg); // Pobierz parametr
 
-	return Command(cmdType, param);
+	return MessagePacket(cmdType, param);
 }
 /********************************************************/
 
@@ -135,15 +135,15 @@ Command Communicator::unpackMsg(const char * msg)
  * @return
  */
 /********************************************************/
-char * Communicator::packMsg(Command cmd, char * msg)
+char * Communicator::packMsg(MessagePacket packet, char * msg)
 {
 	const char CMDSTR_SIZE = 3;
 	char cmdStr[CMDSTR_SIZE];
 	char paramStr[CP_MSG_SIZE-CMDSTR_SIZE-3]; // -3 for = and \r\n
 
-	itoa(cmd.getType(),cmdStr,10);
+	itoa(packet.getType(),cmdStr,10);
 	//strFromFloat(cmd.getParam(),paramStr);
-	ftostr(cmd.getParam(),paramStr);
+	ftostr(packet.getParam(),paramStr);
 
 	sprintf(msg,"%s=%s\r\n",cmdStr,paramStr);
 

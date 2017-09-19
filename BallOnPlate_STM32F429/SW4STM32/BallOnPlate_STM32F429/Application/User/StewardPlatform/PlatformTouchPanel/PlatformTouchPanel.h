@@ -28,25 +28,34 @@ extern "C" {
 /*
  *
  */
-class PlatformTouchPanel : public TouchPanel4W{
+class PlatformTouchPanel{
+	friend class StewardPlatform;
+
 public:
 
 	PlatformTouchPanel(	TickType_t period = 1);
 	virtual ~PlatformTouchPanel();
 
-	void TouchPanelTask(void const * argument);
-
 	TickType_t GetSamplingInterval() const {
 		return xSamplingInterval;
 	}
 
-	void SetSamplingInterval(TickType_t samplingInterval) {
-		xSamplingInterval = samplingInterval;
-	}
+//	void SetSamplingInterval(TickType_t samplingInterval) {
+//		xSamplingInterval = samplingInterval;
+//	}
+
+//protected:
+
+	TouchPanel4W TouchPanel;
 
 private:
 
 	TickType_t xSamplingInterval;
+
+	osThreadDef(PlatformTouchPanelTask, TouchPanelTask, osPriorityAboveNormal, 0, 256);
+	osThreadId touchPanelTaskHandle;
+
+	static void TouchPanelTask(void const * argument);
 
 	void Construct();
 };

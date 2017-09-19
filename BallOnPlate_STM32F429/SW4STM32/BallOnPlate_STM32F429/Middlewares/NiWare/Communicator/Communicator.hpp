@@ -8,7 +8,7 @@
 #ifndef APPLICATION_USER_COMMUNICATOR_COMMUNICATOR_HPP_
 #define APPLICATION_USER_COMMUNICATOR_COMMUNICATOR_HPP_
 
-#include "Command/Command.hpp"
+#include <Communicator/MessagePacket/MessagePacket.hpp>
 #include "Serial/Serial.hpp"
 
 #include "stdlib.h"
@@ -27,12 +27,12 @@ public:
 	Communicator(){SerialPort = NULL;};
 	~Communicator();
 
-	Command ReceiveCommmand(bool *cmdReceived = NULL);
-	void SendCommand(Command cmd);
+	MessagePacket ReceivePacket(bool *cmdReceived = NULL);
+	void SendPacket(MessagePacket packet);
 
 private:
-	Command unpackMsg(const char* msg);
-	char*  packMsg(Command cmd, char * msg);
+	MessagePacket unpackMsg(const char* msg);
+	char*  packMsg(MessagePacket packet, char * msg);
 
 	CmdType_e cmdTypeFromMsg(const char* msg);
 	float paramFromMsg(const char* msg);

@@ -20,6 +20,7 @@ TouchPanel4W::TouchPanel4W(AnalogPin *x_analog,Pin *x_gnd,AnalogPin *y_analog,Pi
 }
 
 
+
 TouchPanel4W::~TouchPanel4W() {
 	delete XFilter;
 	delete YFilter;
@@ -169,3 +170,5 @@ float TouchPanel4W::FCorr(float value, const struct Corr * corr) {
 	return ( ( value - dm/2 ) * corr->size / 2 )/( corr->adc_max - dm/2 );
 
 }
+
+

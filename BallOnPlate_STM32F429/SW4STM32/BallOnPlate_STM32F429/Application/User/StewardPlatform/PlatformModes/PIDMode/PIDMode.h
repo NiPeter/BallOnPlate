@@ -37,7 +37,7 @@ public:
 	void Stop();
 	void Reset();
 
-	void Execute(Command cmd);
+	void Execute(MessagePacket cmd);
 
 	TickType_t GetSamplingInterval() const {
 		return xSamplingInterval;
@@ -70,9 +70,9 @@ private:
 	}CommunicationState;
 
 
-	void ExecuteNormalState(Command& cmd);
-	void ExecuteSetSetpointState(Command& cmd);
-	void ExecuteSetParamState(Command& cmd);
+	void ExecuteNormalState(MessagePacket& cmd);
+	void ExecuteSetSetpointState(MessagePacket& cmd);
+	void ExecuteSetParamState(MessagePacket& cmd);
 
 	bool isSetpointCommandType(CmdType_e cmdType){
 		return isCommandTypeInRange(cmdType,setSetpointX,setSetpointY);

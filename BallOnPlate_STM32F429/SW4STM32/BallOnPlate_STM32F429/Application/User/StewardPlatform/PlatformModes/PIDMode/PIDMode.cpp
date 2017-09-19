@@ -87,7 +87,7 @@ void PIDMode::Reset() {
  *
  * @param cmd
  */
-void PIDMode::Execute(Command cmd) {
+void PIDMode::Execute(MessagePacket cmd) {
 
 	switch(CommunicationState.State){
 
@@ -108,7 +108,7 @@ void PIDMode::Execute(Command cmd) {
 /********************************************************/
 
 
-void PIDMode::ExecuteNormalState(Command& cmd) {
+void PIDMode::ExecuteNormalState(MessagePacket& cmd) {
 	CmdType_e 	cmdType = cmd.getType();
 	float		cmdParam = cmd.getParam();
 
@@ -145,7 +145,7 @@ void PIDMode::ExecuteNormalState(Command& cmd) {
 	}
 }
 
-void PIDMode::ExecuteSetSetpointState(Command& cmd) {
+void PIDMode::ExecuteSetSetpointState(MessagePacket& cmd) {
 	CmdType_e 	cmdType = cmd.getType();
 	float		cmdParam = cmd.getParam();
 
@@ -191,7 +191,7 @@ void PIDMode::ExecuteSetSetpointState(Command& cmd) {
 
 }
 
-void PIDMode::ExecuteSetParamState(Command& cmd) {
+void PIDMode::ExecuteSetParamState(MessagePacket& cmd) {
 }
 
 struct PIDMode_AQ{
@@ -222,7 +222,7 @@ void PIDMode::PIDModeTask(const void* argument) {
 		vTaskDelayUntil( &xLastWakeTime, Mode->GetSamplingInterval() );
 
 		previousTouchDetect = touchDetect;
-		touchDetect = Mode->Master->TouchPanel.IsTouched();
+		touchDetect = Mode->Master->TouchPanel.TouchPanel.IsTouched();
 
 		if( ((previousTouchDetect == true) && (touchDetect == false))  ){
 			Mode->XPid->Reset();
@@ -277,8 +277,8 @@ void PIDMode::Construct() {
 
 
 
-	XPos = new XAxis(Master->TouchPanel);
-	YPos = new YAxis(Master->TouchPanel);
+	XPos = new XAxis(Master->TouchPanel.TouchPanel);
+	YPos = new YAxis(Master->TouchPanel.TouchPanel);
 	Roll = new RollDOF(Master->Platform.Controller);
 	Pitch= new PitchDOF(Master->Platform.Controller);
 

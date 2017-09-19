@@ -222,7 +222,7 @@
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="refreshScope" versionNumber="2">
 		<configuration configurationName="Debug">
-			<resource resourceType="PROJECT" workspacePath="BallOnPlate_STM32F429"/>
+			<resource resourceType="PROJECT" workspacePath="/BallOnPlate_STM32F429"/>
 		</configuration>
 		<configuration configurationName="Release"/>
 	</storageModule>

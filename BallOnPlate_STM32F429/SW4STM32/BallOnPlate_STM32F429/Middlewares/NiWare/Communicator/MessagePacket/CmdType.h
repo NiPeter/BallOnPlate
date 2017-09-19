@@ -91,8 +91,6 @@ typedef enum {
 
 } CmdType_e;
 
-
-
 typedef enum {
 	demo = 0,
 	pidMode,
