@@ -20,7 +20,6 @@ StewardPlatform::StewardPlatform() {
 	CommunicationCenter.StartBroadcast();
 
 	/* creation of communicationTask */
-
 	communicationTaskHandle = osThreadCreate(osThread(StewardPlatformCommunicationTask), this);
 }
 /********************************************************/

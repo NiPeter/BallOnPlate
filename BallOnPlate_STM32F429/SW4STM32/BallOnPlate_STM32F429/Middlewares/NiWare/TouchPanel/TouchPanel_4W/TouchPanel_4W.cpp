@@ -35,6 +35,7 @@ void TouchPanel4W::InitFilters(){ //TODO User shoud be able to attach own IFilte
 }
 /********************************************************/
 
+//TODO Achtung Aqusition!
 struct TPanelAQ{
 	float X;
 	float Y;
@@ -54,6 +55,7 @@ void TouchPanel4W::Process(void){
 	bool analogRead = XAnalog->Read();
 
 	if( analogRead != false){
+		// no touch detected
 		if(touch_inc){
 			touch_inc--;
 			return;
@@ -67,17 +69,9 @@ void TouchPanel4W::Process(void){
 			return;
 		}
 	} else {
+		// touch detected
 		touch_inc = size;
 	}
-
-
-
-	//	if(touch_inc == 0){
-	//		XFilter->Reset();
-	//		YFilter->Reset();
-	//		Touched = false;
-	//		return;
-	//	}
 
 	float tmpX = XFilter->Filter(MeasureX());
 	float corrX = FCorr(tmpX,&sXCorr);

@@ -194,6 +194,7 @@ void PIDMode::ExecuteSetSetpointState(MessagePacket& cmd) {
 void PIDMode::ExecuteSetParamState(MessagePacket& cmd) {
 }
 
+//TODO Achtung Aqusition!
 struct PIDMode_AQ{
 	double xError;
 	double yError;
