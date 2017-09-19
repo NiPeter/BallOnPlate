@@ -10,6 +10,7 @@
 
 #include <Communicator/Serial/HC05/HC05.hpp>
 #include <Communicator/Communicator.hpp>
+#include <Communicator/MessagePacket/CmdType.h>
 
 #include "FreeRTOS.h"
 #include "task.h"
@@ -19,25 +20,28 @@
  *
  */
 class PlatformCommunicationCenter{
+	friend class StewardPlatform;
 public:
 
 	PlatformCommunicationCenter();
 	virtual ~PlatformCommunicationCenter();
 
 	void SendEmpty(){
-		MessagePacket cmd = MessagePacket(empty);
-		Comm.SendPacket(cmd);
+		MessagePacket msg = MessagePacket(empty);
+		SendPacket(msg);
 	}
 	void SendFail(){
-		MessagePacket cmd = MessagePacket(fail);
-		Comm.SendPacket(cmd);
+		MessagePacket msg = MessagePacket(fail);
+		SendPacket(msg);
 	}
 	void SendOk(){
-		MessagePacket cmd = MessagePacket(ok);
-		Comm.SendPacket(cmd);
+		MessagePacket msg = MessagePacket(ok);
+		SendPacket(msg);
 	}
 
-	void SendPacket()
+	void SendPacket(MessagePacket packet){
+		Comm.SendPacket(packet);
+	}
 
 	void StartBroadcast(){
 		Bluetooth.begin();
@@ -46,10 +50,12 @@ public:
 	void UARTRxCpltCallback(UART_HandleTypeDef *huart);
 	void UARTTxCpltCallback(UART_HandleTypeDef *huart);
 
-//private:
+protected:
 
 	HC05 		Bluetooth;
 	Communicator	Comm;
+
+private:
 
 	osThreadDef(CommCenterRxTask, RxTask, osPriorityRealtime, 0, 128);
 	osThreadDef(CommCenterTxTask, TxTask, osPriorityRealtime, 0, 128);

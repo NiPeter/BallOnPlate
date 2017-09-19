@@ -8,23 +8,28 @@
 #ifndef COMMAND_H_
 #define COMMAND_H_
 
+#include "../StewardPlatform.h"
+#include <Communicator/MessagePacket/CmdType.h>
+
+
 /*
  *
  */
 class Command {
-public:
 
-	virtual ~Command(){};
-	void Execute(StewardPlatform* platform) = 0;
+protected:
 
-};
-
-class CommandOk : public Command{
-
-	void Execute(StewardPlatform* platform){
-		platform->CommunicationCenter.SendOk();
+	void selfDelete(){
+		delete this;
 	}
 
+public:
+
+	virtual ~Command(){
+//		selfDelete();
+	};
+	virtual void Execute(StewardPlatform* platform) = 0;
 
 };
+
 #endif /* COMMAND_H_ */

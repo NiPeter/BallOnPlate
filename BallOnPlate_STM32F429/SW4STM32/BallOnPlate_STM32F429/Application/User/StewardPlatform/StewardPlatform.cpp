@@ -7,8 +7,9 @@
 
 #include "StewardPlatform.h"
 
-#include <Communicator/MessagePacket/CmdType.h>
 
+#include "Command/CommandFactory.h"
+#include "Command/CommandInclude.h"
 
 
 /**
@@ -80,7 +81,7 @@ void StewardPlatform::Construct() {
  */
 void StewardPlatform::Execute(MessagePacket cmd) {
 
-	switch(cmd.getType()){
+	switch(cmd.GetType()){
 	case empty:
 		CommunicationCenter.SendEmpty();
 		break;
@@ -107,7 +108,7 @@ void StewardPlatform::Execute(MessagePacket cmd) {
 		break;
 
 	case setMode:
-		SetMode((ModeType_e)cmd.getParam());
+		SetMode((ModeType_e)cmd.GetParam());
 		break;
 
 	default:

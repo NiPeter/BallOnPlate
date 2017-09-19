@@ -141,9 +141,9 @@ char * Communicator::packMsg(MessagePacket packet, char * msg)
 	char cmdStr[CMDSTR_SIZE];
 	char paramStr[CP_MSG_SIZE-CMDSTR_SIZE-3]; // -3 for = and \r\n
 
-	itoa(packet.getType(),cmdStr,10);
+	itoa(packet.GetType(),cmdStr,10);
 	//strFromFloat(cmd.getParam(),paramStr);
-	ftostr(packet.getParam(),paramStr);
+	ftostr(packet.GetParam(),paramStr);
 
 	sprintf(msg,"%s=%s\r\n",cmdStr,paramStr);
 

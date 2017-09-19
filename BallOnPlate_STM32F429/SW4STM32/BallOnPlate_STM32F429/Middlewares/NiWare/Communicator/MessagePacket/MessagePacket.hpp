@@ -20,8 +20,8 @@ public:
 	MessagePacket(CmdType_e cmd, float param=0);
 	~MessagePacket();
 
-	CmdType_e getType();
-	float getParam();
+	CmdType_e GetType();
+	float GetParam();
 };
 
 #endif /* APPLICATION_USER_COMMUNICATOR_COMMAND_HPP_ */

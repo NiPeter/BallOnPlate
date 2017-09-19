@@ -12,10 +12,15 @@
 #include "task.h"
 #include "cmsis_os.h"
 
+#include <Communicator/MessagePacket/CmdType.h>
+
 #include "PlatformCommunicationCenter/PlatformCommunicationCenter.h"
 #include "PlatformControlSystem/PlatformControlSystem.h"
 #include "PlatformTouchPanel/PlatformTouchPanel.h"
 #include "PlatformModes/PIDMode/PIDMode.h"
+
+class Command;
+class CommandFactory;
 
 /**
  *
@@ -31,14 +36,30 @@ public:
 
 	void SetMode(ModeType_e modeType);
 
+	void StartProcedure(void){
+		PlatformSystem.Controller.Start();
+		double q[6] = {0,0,0,0,0,0};
+		PlatformSystem.Controller.Move(q);
+		osDelay(100);
+
+		q[2] = -0.01;
+		PlatformSystem.Controller.Move(q);
+		osDelay(300);
+
+		q[2] = 0;
+		PlatformSystem.Controller.Move(q);
+		osDelay(100);
+
+		q[2] = -0.002;
+		PlatformSystem.Controller.Move(q);
+		osDelay(100);
+	}
+
 	void UART_RxCpltCallback(UART_HandleTypeDef *huart);
 	void UART_TxCpltCallback(UART_HandleTypeDef *huart);
 
-protected:
-
-
-	PlatformControlSystem			Platform;
-	PlatformTouchPanel				TouchPanel;
+	PlatformControlSystem			PlatformSystem;
+	PlatformTouchPanel				TouchPanelSystem;
 	PlatformCommunicationCenter		CommunicationCenter;
 
 	PlatformMode*					Mode;

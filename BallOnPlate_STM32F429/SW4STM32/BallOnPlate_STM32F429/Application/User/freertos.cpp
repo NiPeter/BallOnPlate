@@ -53,6 +53,7 @@
 
 /* USER CODE BEGIN Includes */
 #include "StewardPlatform/StewardPlatform.h"
+#include "StewardPlatform/Command/CommandFactory.h"
 #include "CPU/cpu_utils.h"
 /* USER CODE END Includes */
 
@@ -74,7 +75,6 @@ void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
 /* USER CODE BEGIN FunctionPrototypes */
 
-void StartProcedure(void);
 
 /* USER CODE END FunctionPrototypes */
 
@@ -149,7 +149,30 @@ void StartDefaultTask(void const * argument)
   /* USER CODE BEGIN StartDefaultTask */
 	stewardPlatform = new StewardPlatform;
 
-	StartProcedure();
+	stewardPlatform->StartProcedure();
+
+	Command* cmd;
+
+	cmd = CommandFactory::GetCommand(MessagePacket(setMode,pidMode));
+	cmd->Execute(stewardPlatform);
+
+	cmd = CommandFactory::GetCommand(MessagePacket(startMode));
+	cmd->Execute(stewardPlatform);
+
+	int i = xPortGetFreeHeapSize();
+
+	for(uint8_t i = 0; i<20 ;i++){
+		cmd = CommandFactory::GetCommand(MessagePacket(empty));
+		cmd->Execute(stewardPlatform);
+	}
+
+	cmd = NULL;
+
+	stewardPlatform->CommunicationCenter.SendPacket( MessagePacket(setSetpointX, xPortGetFreeHeapSize() ) );
+	stewardPlatform->CommunicationCenter.SendPacket( MessagePacket(setSetpointX, i - xPortGetFreeHeapSize() ) );
+
+
+
 
 	defaultDelay = 10;
 
@@ -188,27 +211,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 }
 /********************************************************/
 
-
-
-void StartProcedure(void){
-	stewardPlatform->Platform.Controller.Start();
-	double q[6] = {0,0,0,0,0,0};
-	stewardPlatform->Platform.Controller.Move(q);
-	osDelay(100);
-
-	q[2] = -0.01;
-	stewardPlatform->Platform.Controller.Move(q);
-	osDelay(300);
-
-	q[2] = 0;
-	stewardPlatform->Platform.Controller.Move(q);
-	osDelay(100);
-
-	q[2] = -0.002;
-	stewardPlatform->Platform.Controller.Move(q);
-	osDelay(100);
-
-}
 
 /* USER CODE END Application */
 

@@ -18,13 +18,13 @@ MessagePacket::~MessagePacket()
 }
 
 
-CmdType_e MessagePacket::getType()
+CmdType_e MessagePacket::GetType()
 {
 	return CmdType;
 }
 
 
-float MessagePacket::getParam()
+float MessagePacket::GetParam()
 {
 	return Param;
 }
