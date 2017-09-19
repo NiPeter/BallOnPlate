@@ -91,10 +91,9 @@ typedef enum {
 
 } CmdType_e;
 
-
-
 typedef enum {
-	demo = 0,
+	none,
+	demo,
 	pidMode,
 	ikMode,
 	servoMode,

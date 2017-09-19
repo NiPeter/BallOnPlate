@@ -30,7 +30,25 @@ public:
 	TouchPanel4W(AnalogPin *x_analog, Pin *x_gnd, AnalogPin *y_analog, Pin *y_gnd);
 	~TouchPanel4W();
 
+	const AnalogPin* GetXAnalog() const {
+		return XAnalog;
+	}
+
+	const Pin* GetXGnd() const {
+		return XGnd;
+	}
+
+	const AnalogPin* GetYAnalog() const {
+		return YAnalog;
+	}
+
+	const Pin* GetYGnd() const {
+		return YGnd;
+	}
+
 	void Process(void);
+
+
 
 protected:
 	AnalogPin 		*XAnalog,	*YAnalog;

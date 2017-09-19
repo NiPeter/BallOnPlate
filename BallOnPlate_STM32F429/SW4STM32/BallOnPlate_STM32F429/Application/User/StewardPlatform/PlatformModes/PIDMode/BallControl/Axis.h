@@ -19,10 +19,10 @@
  */
 class Axis : public IPerceptible{
 protected:
-	TouchPanel4W &Panel;
+	ITouchPanel &Panel;
 
 public:
-	Axis( TouchPanel4W &panel) : Panel(panel) {};
+	Axis( ITouchPanel &panel) : Panel(panel) {};
 	virtual ~Axis(){};
 	virtual double Get() = 0;
 };
@@ -36,7 +36,7 @@ public:
 class XAxis : public Axis{
 public:
 
-	XAxis( TouchPanel4W &panel) : Axis(panel) {};
+	XAxis( ITouchPanel &panel) : Axis(panel) {};
 	virtual ~XAxis(){};
 	double Get() {
 		return (double)Panel.GetX();
@@ -52,7 +52,7 @@ public:
 class YAxis : public Axis{
 public:
 
-	YAxis( TouchPanel4W &panel) : Axis(panel) {};
+	YAxis( ITouchPanel &panel) : Axis(panel) {};
 	virtual ~YAxis(){};
 	double Get() {
 		return (double)Panel.GetY();

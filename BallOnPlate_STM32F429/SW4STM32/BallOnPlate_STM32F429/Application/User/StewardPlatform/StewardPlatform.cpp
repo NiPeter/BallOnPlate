@@ -6,8 +6,10 @@
  */
 
 #include "StewardPlatform.h"
-#include <Communicator/Command/CmdType.h>
 
+
+#include "Command/CommandFactory.h"
+#include "Command/CommandInclude.h"
 
 
 /**
@@ -15,11 +17,11 @@
  */
 StewardPlatform::StewardPlatform() {
 
-	this->Construct();
-
 	Mode = NULL;
-	CommunicationCenter.Bluetooth.begin();
+	CommunicationCenter.StartBroadcast();
 
+	/* creation of communicationTask */
+	communicationTaskHandle = osThreadCreate(osThread(StewardPlatformCommunicationTask), this);
 }
 /********************************************************/
 
@@ -31,9 +33,8 @@ StewardPlatform::StewardPlatform() {
 StewardPlatform::~StewardPlatform() {
 	delete Mode;
 
-	osThreadTerminate(rxTaskHandle);
-	osThreadTerminate(txTaskHandle);
-	osThreadTerminate(touchPanelTaskHandle);
+	osThreadTerminate(communicationTaskHandle);
+
 }
 
 
@@ -54,6 +55,10 @@ void StewardPlatform::SetMode(ModeType_e modeType) {
 		Mode = new PIDMode(this);
 		break;
 
+	case ikMode:
+		Mode = new IKMode(&this->PlatformSystem.Controller);
+		break;
+
 	default:
 		break;
 	}
@@ -67,21 +72,7 @@ void StewardPlatform::SetMode(ModeType_e modeType) {
  *
  */
 void StewardPlatform::Construct() {
-	/* definition and creation of rxTask */
-	osThreadDef(StewardPlatformRxTask, RxTask, osPriorityRealtime, 0, 128);
-	rxTaskHandle = osThreadCreate(osThread(StewardPlatformRxTask), &CommunicationCenter);
 
-	/* definition and creation of txTask */
-	osThreadDef(StewardPlatformTxTask, TxTask, osPriorityRealtime, 0, 128);
-	txTaskHandle = osThreadCreate(osThread(StewardPlatformTxTask), &CommunicationCenter);
-
-	/* definition and creation of touchPanelTask */
-	osThreadDef(StewardPlatformTouchPanelTask, TouchPanelTask, osPriorityAboveNormal, 0, 256);
-	touchPanelTaskHandle = osThreadCreate(osThread(StewardPlatformTouchPanelTask), &TouchPanel);
-
-	/* definition and creation of communicationTask */
-	osThreadDef(StewardPlatformCommunicationTask, CommunicationTask, osPriorityBelowNormal, 0, 512);
-	communicationTaskHandle = osThreadCreate(osThread(StewardPlatformCommunicationTask), this);
 
 }
 /********************************************************/
@@ -92,86 +83,44 @@ void StewardPlatform::Construct() {
  *
  * @param cmd
  */
-void StewardPlatform::Execute(Command cmd) {
+void StewardPlatform::Execute(MessagePacket cmd) {
 
-	switch(cmd.getType()){
-	case empty:
-		CommunicationCenter.SendEmpty();
-		break;
-
-	case fail:
-		break;
-
-	case ok:
-		break;
-
-	case startMode:
-		if(Mode) Mode->Start();
-			else CommunicationCenter.SendFail();
-		break;
-
-	case stopMode:
-		if(Mode) Mode->Stop();
-			else CommunicationCenter.SendFail();
-		break;
-
-	case resetMode:
-		if(Mode) Mode->Reset();
-			else CommunicationCenter.SendFail();
-		break;
-
-	case setMode:
-		SetMode((ModeType_e)cmd.getParam());
-		break;
-
-	default:
-		if(Mode) Mode->Execute(cmd);
-			else CommunicationCenter.SendFail();
-		break;
-
-	}
-}
-/********************************************************/
-
-
-
-/**
- *
- * @param argument
- */
-void StewardPlatform::TouchPanelTask(const void* argument) {
-	PlatformTouchPanel* touchPanel;
-
-	touchPanel = (PlatformTouchPanel*) argument;
-	touchPanel->TouchPanelTask(NULL);
-}
-/********************************************************/
-
-
-
-/**
- *
- * @param argument
- */
-void StewardPlatform::TxTask(const void* argument) {
-	PlatformCommunicator* communicationCenter;
-
-	communicationCenter = (PlatformCommunicator*) argument;
-	communicationCenter->TxTask(NULL);
-}
-/********************************************************/
-
-
-
-/**
- *
- * @param argument
- */
-void StewardPlatform::RxTask(const void* argument) {
-	PlatformCommunicator* communicationCenter;
-
-	communicationCenter = (PlatformCommunicator*) argument;
-	communicationCenter->RxTask(NULL);
+//	switch(cmd.GetType()){
+//	case empty:
+//		CommunicationCenter.SendEmpty();
+//		break;
+//
+//	case fail:
+//		break;
+//
+//	case ok:
+//		break;
+//
+//	case startMode:
+//		if(Mode) Mode->Start();
+//			else CommunicationCenter.SendFail();
+//		break;
+//
+//	case stopMode:
+//		if(Mode) Mode->Stop();
+//			else CommunicationCenter.SendFail();
+//		break;
+//
+//	case resetMode:
+//		if(Mode) Mode->Reset();
+//			else CommunicationCenter.SendFail();
+//		break;
+//
+//	case setMode:
+//		SetMode((ModeType_e)cmd.GetParam());
+//		break;
+//
+//	default:
+//		if(Mode) Mode->Execute(cmd);
+//			else CommunicationCenter.SendFail();
+//		break;
+//
+//	}
 }
 /********************************************************/
 
@@ -183,19 +132,23 @@ void StewardPlatform::RxTask(const void* argument) {
  */
 void StewardPlatform::CommunicationTask(const void* argument) {
 	StewardPlatform* stewardPlatform = (StewardPlatform*)argument;
-	PlatformCommunicator* communicationCenter = &stewardPlatform->CommunicationCenter;
+	PlatformCommunicationCenter* communicationCenter = &stewardPlatform->CommunicationCenter;
 
 
 	while(true){
-		bool isCommand = false;
+		bool isPacket = false;
 
-		Command cmd = communicationCenter->ReceiveCommmand(&isCommand);
-		if(isCommand){
+		MessagePacket packet = communicationCenter->Comm.ReceivePacket(&isPacket);
+		if(isPacket){
 
-			communicationCenter->SendCommand(cmd);
-			stewardPlatform->Execute(cmd);
-		}else
-		osDelay(30);
+			communicationCenter->Comm.SendPacket(packet);
+
+			Command* cmd = CommandFactory::GetCommand(packet);
+			cmd -> Execute(stewardPlatform);
+
+		}
+//		else
+//		osDelay(10);
 
 	}
 }

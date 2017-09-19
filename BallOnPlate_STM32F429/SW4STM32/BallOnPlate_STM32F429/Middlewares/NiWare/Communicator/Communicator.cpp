@@ -16,8 +16,6 @@
 /***	static functions	***/
 
 static float floatFrom2Ints(int intPart, int fracPart, unsigned int nZeros = 0);
-static void intsFromFloat(float floatNumber, int *intPart, unsigned int *fracPartNominator, unsigned int *fracPartDenominator);
-static void strFromFloat(float param, char * result);
 static unsigned int orderOfMagnitude(int number,unsigned int nZeros = 0);
 
 /***						***/
@@ -51,11 +49,11 @@ Communicator::~Communicator()
 
 
 /**
- * Receive command via Seria interface
+ * Receive command via Serial interface
  * @return
  */
 /********************************************************/
-Command Communicator::ReceiveCommmand(bool *cmdReceived)
+MessagePacket Communicator::ReceivePacket(bool *isPacketReceived)
 {
 
 	char c;
@@ -73,7 +71,7 @@ Command Communicator::ReceiveCommmand(bool *cmdReceived)
 			msg[index] = '\0';
 			index = 0;
 			//			strcat(msg,'\0');
-			if(cmdReceived != NULL)	*cmdReceived = true;
+			if(isPacketReceived != NULL)	*isPacketReceived = true;
 			return unpackMsg(msg);
 
 		}else if(c != '\r'){
@@ -86,8 +84,8 @@ Command Communicator::ReceiveCommmand(bool *cmdReceived)
 
 	if(index==CP_MSG_SIZE) index = 0;
 
-	if(cmdReceived != NULL)	*cmdReceived = false;
-	return Command(fail);
+	if(isPacketReceived != NULL)	*isPacketReceived = false;
+	return MessagePacket(fail);
 }
 /********************************************************/
 
@@ -98,10 +96,10 @@ Command Communicator::ReceiveCommmand(bool *cmdReceived)
  * @param cmd
  */
 /********************************************************/
-void Communicator::SendCommand(Command cmd)
+void Communicator::SendPacket(MessagePacket packet)
 {
 	char msg[CP_MSG_SIZE+2]; // +2 for terminating characters store
-	SerialPort->writeStr(packMsg(cmd,msg));
+	SerialPort->writeStr(packMsg(packet,msg));
 }
 /********************************************************/
 
@@ -119,12 +117,12 @@ void Communicator::SendCommand(Command cmd)
  * @return
  */
 /********************************************************/
-Command Communicator::unpackMsg(const char * msg)
+MessagePacket Communicator::unpackMsg(const char * msg)
 {
 	CmdType_e cmdType = cmdTypeFromMsg(msg); // Pobierz typ komendy
 	float param = paramFromMsg(msg); // Pobierz parametr
 
-	return Command(cmdType, param);
+	return MessagePacket(cmdType, param);
 }
 /********************************************************/
 
@@ -137,15 +135,15 @@ Command Communicator::unpackMsg(const char * msg)
  * @return
  */
 /********************************************************/
-char * Communicator::packMsg(Command cmd, char * msg)
+char * Communicator::packMsg(MessagePacket packet, char * msg)
 {
 	const char CMDSTR_SIZE = 3;
 	char cmdStr[CMDSTR_SIZE];
 	char paramStr[CP_MSG_SIZE-CMDSTR_SIZE-3]; // -3 for = and \r\n
 
-	itoa(cmd.getType(),cmdStr,10);
+	itoa(packet.GetType(),cmdStr,10);
 	//strFromFloat(cmd.getParam(),paramStr);
-	ftostr(cmd.getParam(),paramStr);
+	ftostr(packet.GetParam(),paramStr);
 
 	sprintf(msg,"%s=%s\r\n",cmdStr,paramStr);
 
@@ -225,42 +223,6 @@ char * ftostr(float num, char * str){
 	sprintf (str, "%s%d.%04d", tmpSign, tmpInt1, tmpInt2);
 
 	return str;
-}
-
-static void intsFromFloat(float floatNumber, int *intPart, unsigned int *fracPartNominator, unsigned int *fracPartDenominator) {
-
-	*intPart = (int)floatNumber;
-
-	unsigned int den = 1000;
-
-	*fracPartNominator = (unsigned int)(fabs(floatNumber - *intPart) * den);
-	*fracPartDenominator = den;
-}
-
-static void strFromFloat(float param, char * result) {
-	char result_t[30];
-	char temp[20];
-
-	int i;
-	unsigned int n, d;
-	intsFromFloat(param, &i, &n, &d);
-
-
-	itoa(i, result_t, 10);
-
-	strcpy(temp, ".");
-
-	unsigned int n_mag, d_mag;
-	n_mag = orderOfMagnitude(n);
-	d_mag = orderOfMagnitude(d);
-
-	for (unsigned int i = 0; i < ( (d_mag - n_mag)-1); i++) strcat(temp, "0");
-	strcat(result_t,(char*) temp);
-
-	itoa(n, temp, 10);
-	strcat(result_t, (char*)temp);
-
-	strcpy(result, result_t);
 }
 
 static float floatFrom2Ints(int intPart, int fracPart, unsigned int nZeros) {

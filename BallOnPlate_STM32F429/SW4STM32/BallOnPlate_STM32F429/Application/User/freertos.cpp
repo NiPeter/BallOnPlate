@@ -52,13 +52,9 @@
 #include "cmsis_os.h"
 
 /* USER CODE BEGIN Includes */
-
-#include <PID/DiscreteTimePID/DiscreteTimePID.h>
-
-#include "StewardPlatform/PlatformModes/PIDMode/BallControl/Axis.h"
-#include "StewardPlatform/PlatformModes/PIDMode/BallControl/DOF.h"
 #include "StewardPlatform/StewardPlatform.h"
-
+#include "StewardPlatform/Command/CommandFactory.h"
+#include "CPU/cpu_utils.h"
 /* USER CODE END Includes */
 
 /* Variables -----------------------------------------------------------------*/
@@ -68,6 +64,8 @@ osThreadId defaultTaskHandle;
 StewardPlatform* stewardPlatform;
 int freeHeap;
 int minFreeHeap;
+float cpuUsage;
+TickType_t defaultDelay;
 /* USER CODE END Variables */
 
 /* Function prototypes -------------------------------------------------------*/
@@ -77,7 +75,6 @@ void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
 /* USER CODE BEGIN FunctionPrototypes */
 
-void StartProcedure(void);
 
 /* USER CODE END FunctionPrototypes */
 
@@ -115,8 +112,6 @@ __weak void vApplicationTickHook( void )
 
 void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN Init */
-	stewardPlatform = new StewardPlatform;
-
 
   /* USER CODE END Init */
 
@@ -152,16 +147,19 @@ void StartDefaultTask(void const * argument)
 {
 
   /* USER CODE BEGIN StartDefaultTask */
-	StartProcedure();
+	stewardPlatform = new StewardPlatform;
+
+	defaultDelay = 20;
 
 	/* Infinite loop */
 	for(;;)
 	{
 		freeHeap = xPortGetFreeHeapSize();
 		minFreeHeap = xPortGetMinimumEverFreeHeapSize();
+		cpuUsage = osGetCPUUsage();
 
 
-		osDelay(10);
+		if(defaultDelay) osDelay(defaultDelay);
 	}
   /* USER CODE END StartDefaultTask */
 }
@@ -189,27 +187,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 }
 /********************************************************/
 
-
-
-void StartProcedure(void){
-	stewardPlatform->Platform.Controller.Start();
-	double q[6] = {0,0,0,0,0,0};
-	stewardPlatform->Platform.Controller.Move(q);
-	osDelay(100);
-
-	q[2] = -0.01;
-	stewardPlatform->Platform.Controller.Move(q);
-	osDelay(300);
-
-	q[2] = 0;
-	stewardPlatform->Platform.Controller.Move(q);
-	osDelay(100);
-
-	q[2] = -0.002;
-	stewardPlatform->Platform.Controller.Move(q);
-	osDelay(100);
-
-}
 
 /* USER CODE END Application */
 

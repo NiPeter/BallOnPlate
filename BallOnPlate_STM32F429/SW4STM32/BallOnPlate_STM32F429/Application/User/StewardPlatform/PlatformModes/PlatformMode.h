@@ -8,7 +8,8 @@
 #ifndef PLATFORMMODE_H_
 #define PLATFORMMODE_H_
 
-#include <Communicator/Command/Command.hpp>
+#include <Communicator/MessagePacket/MessagePacket.hpp>
+
 #include "PlatformModeCommon.h"
 
 /*
@@ -22,11 +23,15 @@ public:
 	virtual void Stop() = 0;
 	virtual void Reset() = 0;
 
-	virtual void Execute(Command cmd) = 0;
+//	virtual void Execute(MessagePacket cmd) = 0;
+
+	bool IsMovable() const{
+		return movable;
+	}
 
 protected:
 
-	StewardPlatform* Master;
+	bool movable;
 };
 
 #endif /* PLATFORMMODE_H_ */

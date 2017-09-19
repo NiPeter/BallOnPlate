@@ -5,7 +5,7 @@
  *      Author: peter
  */
 
-#include "CmdType.h"
+#include <Communicator/MessagePacket/CmdType.h>
 
 bool isCommandTypeInRange(CmdType_e cmdType, CmdType_e lower, CmdType_e upper){
 

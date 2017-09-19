@@ -25,6 +25,8 @@ IKController::IKController(const IKController& controller) {
 		Q[i] = controller.Q[i];
 		Angles[i] = controller.Angles[i];
 	}
+	Stop();
+
 }
 
 
@@ -36,6 +38,7 @@ IKController::IKController(const IKController& controller) {
 IKController::IKController(Servo servo[6],Steward_Struct* steward){
 	for(int i=0;i<6;i++) servos[i] = &servo[i];
 
+	Stop();
 	IKInit(steward);
 
 }
@@ -149,6 +152,22 @@ void IKController::Move( double q[6], AngleUnits_e unit){
 	SetPositions();
 }
 /********************************************************/
+
+
+
+
+void IKController::Move(double x, double y, double z, double roll, double pitch,
+		double yaw, AngleUnits_e unit) {
+	double q[6];
+	q[0] = x;
+	q[1] = y;
+	q[2] = z;
+	q[3] = roll;
+	q[4] = pitch;
+	q[5] = yaw;
+
+	Move(q,unit);
+}
 
 
 
