@@ -146,8 +146,9 @@ void StewardPlatform::CommunicationTask(const void* argument) {
 			Command* cmd = CommandFactory::GetCommand(packet);
 			cmd -> Execute(stewardPlatform);
 
-		}else
-		osDelay(10);
+		}
+//		else
+//		osDelay(10);
 
 	}
 }

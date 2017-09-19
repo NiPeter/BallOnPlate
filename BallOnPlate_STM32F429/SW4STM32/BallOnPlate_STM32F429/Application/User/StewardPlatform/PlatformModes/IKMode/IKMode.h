@@ -34,6 +34,7 @@ public:
 	void Reset();
 
 	void MoveTo(float q[6]);
+	void MoveTo(float x, float y, float z, float roll, float pitch, float yaw);
 
 };
 

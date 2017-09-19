@@ -87,4 +87,102 @@ public:
 
 
 
+
+class CommandSetIkX : public PosSetterCommand{
+
+public:
+
+	CommandSetIkX(float x) : PosSetterCommand(x) {};
+
+	void Execute(StewardPlatform* platform){
+		if(stateHandler.State == moveToState)
+			stateHandler.Pos.X = PosParam;
+		else platform->CommunicationCenter.SendFail();
+
+		selfDelete();
+	}
+
+};
+
+class CommandSetIkY : public PosSetterCommand{
+
+public:
+
+	CommandSetIkY(float y) : PosSetterCommand(y) {};
+
+	void Execute(StewardPlatform* platform){
+		if(stateHandler.State == moveToState)
+			stateHandler.Pos.Y = PosParam;
+		else platform->CommunicationCenter.SendFail();
+
+		selfDelete();
+	}
+
+};
+
+class CommandSetIkZ : public PosSetterCommand{
+
+public:
+
+	CommandSetIkZ(float z) : PosSetterCommand(z) {};
+
+	void Execute(StewardPlatform* platform){
+		if(stateHandler.State == moveToState)
+			stateHandler.Pos.Z = PosParam;
+		else platform->CommunicationCenter.SendFail();
+
+		selfDelete();
+	}
+
+};
+
+class CommandSetIkRoll : public PosSetterCommand{
+
+public:
+
+	CommandSetIkRoll(float roll) : PosSetterCommand(roll) {};
+
+	void Execute(StewardPlatform* platform){
+		if(stateHandler.State == moveToState)
+			stateHandler.Pos.Roll = PosParam;
+		else platform->CommunicationCenter.SendFail();
+
+		selfDelete();
+	}
+
+};
+
+class CommandSetIkPitch : public PosSetterCommand{
+
+public:
+
+	CommandSetIkPitch(float pitch) : PosSetterCommand(pitch) {};
+
+	void Execute(StewardPlatform* platform){
+		if(stateHandler.State == moveToState)
+			stateHandler.Pos.Pitch = PosParam;
+		else platform->CommunicationCenter.SendFail();
+
+		selfDelete();
+	}
+
+};
+
+class CommandSetIkYaw : public PosSetterCommand{
+
+public:
+
+	CommandSetIkYaw(float yaw) : PosSetterCommand(yaw) {};
+
+	void Execute(StewardPlatform* platform){
+		if(stateHandler.State == moveToState)
+			stateHandler.Pos.Yaw = PosParam;
+		else platform->CommunicationCenter.SendFail();
+
+		selfDelete();
+	}
+
+};
+
+
 #endif /* APPLICATION_USER_STEWARDPLATFORM_COMMAND_MODECOMMAND_H_ */

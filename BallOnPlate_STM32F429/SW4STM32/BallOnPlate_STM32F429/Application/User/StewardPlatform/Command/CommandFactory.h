@@ -53,6 +53,25 @@ public:
 		case setSetpointY:
 			return new CommandSetSetpointY(msg.GetParam());
 
+		case setIkX:
+			return new CommandSetIkX(msg.GetParam());
+
+		case setIkY:
+			return new CommandSetIkY(msg.GetParam());
+
+		case setIkZ:
+			return new CommandSetIkZ(msg.GetParam());
+
+		case setIkRoll:
+			return new CommandSetIkRoll(msg.GetParam());
+
+		case setIkPitch:
+			return new CommandSetIkPitch(msg.GetParam());
+
+		case setIkYaw:
+			return new CommandSetIkYaw(msg.GetParam());
+
+
 		default:
 			return new CommandEmpty;
 		}

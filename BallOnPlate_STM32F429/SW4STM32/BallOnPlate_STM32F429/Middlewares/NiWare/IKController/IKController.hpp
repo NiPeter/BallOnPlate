@@ -53,6 +53,7 @@ public:
 	void Yaw( double yaw, AngleUnits_e unit = Rad);
 
 	void Move( double q[6], AngleUnits_e unit = Rad);
+	void Move( double x, double y, double z, double roll, double pitch, double yaw, AngleUnits_e unit = Rad);
 
 	void Start( void );
 	void Stop( void );

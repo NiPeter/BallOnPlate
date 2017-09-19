@@ -149,12 +149,6 @@ void StartDefaultTask(void const * argument)
   /* USER CODE BEGIN StartDefaultTask */
 	stewardPlatform = new StewardPlatform;
 
-//	stewardPlatform->StartProcedure();
-
-
-	stewardPlatform->SetMode(ikMode);
-
-
 	defaultDelay = 20;
 
 	/* Infinite loop */

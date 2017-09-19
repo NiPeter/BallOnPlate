@@ -81,6 +81,32 @@ class CommandSubmit : public Command{
 			} else platform->CommunicationCenter.SendFail();
 			break;
 
+		case ikMode:
+			if(platform->Mode){
+
+				IKMode* ikmode = reinterpret_cast<IKMode*> (platform->Mode);//dynamic_cast<PIDMode*> (platform->Mode);
+				if(ikmode){
+
+					switch(stateHandler.State){
+					case moveToState:
+						ikmode->MoveTo(stateHandler.Pos.X,stateHandler.Pos.Y,stateHandler.Pos.Z,
+								stateHandler.Pos.Roll,stateHandler.Pos.Pitch,stateHandler.Pos.Yaw);
+						break;
+
+					case setParameterState:
+						break;
+
+					default:
+						platform->CommunicationCenter.SendEmpty();
+						break;
+					}
+
+				} else platform->CommunicationCenter.SendFail();
+
+
+			} else platform->CommunicationCenter.SendFail();
+			break;
+
 		default:
 			platform->CommunicationCenter.SendEmpty();
 			break;
@@ -148,6 +174,14 @@ public:
 
 		stateHandler.State = normalState;
 		stateHandler.Mode = ModeType;
+
+		stateHandler.Pos.X = 0;
+		stateHandler.Pos.Y = 0;
+		stateHandler.Pos.Z = 0;
+		stateHandler.Pos.Roll = 0;
+		stateHandler.Pos.Pitch = 0;
+		stateHandler.Pos.Yaw = 0;
+
 
 		selfDelete();
 	}
