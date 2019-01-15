@@ -1,5 +1,5 @@
 # Stewart Platform - BallOnPlate
-Stewart platform control system design for ball on plate stabilisation.
+Stewart platform control system design for ball on plate stabilization.
 
 ## Video
 https://www.youtube.com/watch?v=h0PvDRa3NOI&
